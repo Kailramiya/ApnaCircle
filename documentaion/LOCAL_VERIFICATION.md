@@ -4,7 +4,7 @@
 
 Source review and `git diff --check` were performed before each pushed increment. **No dependency installation, TypeScript compilation, lint execution, automated tests, SQL execution, app launch, screenshots or builds were performed in the authoring workspace**, as requested. The checks below are runnable instructions, not passing results.
 
-Latest owner-provided Windows output after pulling `3f53bb8`: **TypeScript passes** and ESLint is down to **1 error and 0 warnings**. The remaining diagnostic concerns passing the composer's ref-reading callback to `handleSubmit` during render; that call now runs inside the button's press handler. The full rerun is pending, and Node tests have not been reached. The last supplied Expo Doctor result is **21/21**; both scoped minimatch paths resolve to **11.0.1**, and the last audit has **3 high findings**, all along Router's URI-decoder dependency chain.
+The owner now reports **all of `npm run check` passed** after the composer follow-up (`e4c3b28`): TypeScript, ESLint and Node tests. The full successful transcript and test count were not supplied; this is recorded as an owner-reported pass. The last supplied Expo Doctor result is **21/21**; both scoped minimatch paths resolve to **11.0.1**, and the last audit has **3 high findings**, all along Router's URI-decoder dependency chain. Database, Storage API and native device validation remain pending.
 
 ## 1. Install and configure
 
@@ -107,7 +107,7 @@ The owner's full report identifies these dependency paths:
 
 | Path | Evidence and action | Local validation status |
 |---|---|---|
-| `@expo/fingerprint` / `@typescript-eslint/typescript-estree` → `minimatch` | [GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249) is patched in 11.0.1. Scoped overrides target these two consumers. Their used APIs and the patched Node engine range were reviewed. | Owner confirms both paths resolve to 11.0.1 and minimatch findings are absent from the new audit; consumer compatibility tests pending |
+| `@expo/fingerprint` / `@typescript-eslint/typescript-estree` → `minimatch` | [GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249) is patched in 11.0.1. Scoped overrides target these two consumers. Their used APIs and the patched Node engine range were reviewed. | Owner confirms both paths resolve to 11.0.1 and minimatch findings are absent from the new audit; compatibility tests are included in the subsequently reported full check pass |
 | `expo-router` → `query-string@7` → `decode-uri-component` | [GHSA-vcc3-ghjq-m6fr](https://github.com/advisories/GHSA-vcc3-ghjq-m6fr) and [GHSA-qr28-fpjm-wq7f](https://github.com/advisories/GHSA-qr28-fpjm-wq7f) require 0.5.1, whose ESM default export does not match query-string 7's callable CommonJS dependency. A modern query-string override also changes the namespace API used by SDK 57 Router. | Unresolved; requires a compatible upstream fix or a separately validated Router/SDK migration before release |
 
 These findings concern denial of service. The original report counted 13 affected packages; the latest report counts 3 high findings along the same decoder chain, including its parent packages. The root application does not directly import either package, but that does not prove the transitive runtime/tooling paths are unreachable. Keep the high-severity decoder finding open.
@@ -207,12 +207,12 @@ On a physical Android device, use the preview/release build and the 360-post see
 
 | Item | Actual result |
 |---|---|
-| Commit tested | Owner pulled `3f53bb8`; tracked local edits were restored by autostash, but their diff was not supplied |
+| Commit tested | Owner reports all checks passed after the e4c3b28 handoff; exact local revision/diff and successful transcript not supplied |
 | Node/npm and lockfile | Owner installation completed; generated lockfile not yet committed |
 | Expo Doctor | Owner again reported 21/21 passing with the scoped minimatch overrides installed |
-| TypeScript | Owner run passed again after pulling 3f53bb8; rerun after the composer event-handler correction pending |
-| ESLint | Latest owner run: 1 error and 0 warnings in composer; event-handler correction authored, rerun pending |
-| Node tests | Not reached because lint failed, including the new dependency compatibility tests |
+| TypeScript | Owner reports passed as part of the full check |
+| ESLint | Owner reports passed as part of the full check |
+| Node tests | Owner reports passed as part of the full check, including dependency compatibility checks; count not supplied |
 | npm audit | Owner report reduced from 13 findings to 3 high findings in Router's decoder chain; both minimatch overrides resolve to 11.0.1 |
 | Migrations / SQL regression checks | Not run |
 | Android model / OS / build | Not tested |
