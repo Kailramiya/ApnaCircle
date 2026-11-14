@@ -35,6 +35,21 @@ npx expo install --check
 
 The cleanup above is for the initial failed install with no validated lockfile. Keep and commit the lockfile after a successful verified installation; subsequent clean checkouts should use `npm ci`. Do not add `--legacy-peer-deps` or `--force` to suppress this conflict. `npm ls` must exit successfully without invalid peers, and Expo's compatibility check must pass before continuing.
 
+### Resolving the subsequent Expo Font warning
+
+The owner's next Expo Doctor run passed 19/21 checks. It reported that `expo-symbols` requires `expo-font` as a direct dependency, and found both `expo-font@58.0.12` and `expo-font@57.0.4` in the installed tree. The manifest now declares `expo-font: ~57.0.4`, matching SDK 57. Update the existing install and lockfile with the following commands, one at a time; no lockfile deletion is needed for this correction:
+
+```powershell
+git pull --ff-only
+npm install
+npm ls expo-font --all
+npx expo install --check
+npx expo-doctor
+npm run check
+```
+
+Expect an SDK 57 font version with other references deduped to it, and no missing peer or duplicate native module checks failing. If either check still fails, preserve the `npm ls expo-font --all` and Doctor output for diagnosis. These are expected results, not recorded passes. If the previous npm cache `ENOENT` recurs, use the fresh cache configured for the current PowerShell session rather than bypassing peer dependency checks.
+
 Follow [`supabase/README.md`](../supabase/README.md) to create a dedicated development backend, apply both migrations in order and optionally load the demo seed. Set Auth's minimum password length to 8. Add `apnacircle://auth/callback` and `apnacircle://auth/callback?mode=recovery` to the redirect allowlist. Use your project's standard Supabase confirmation/recovery link templates. PKCE confirmation/recovery links must return to the device/app installation that requested them, where the verifier is stored.
 
 ## 2. Source and logic checks

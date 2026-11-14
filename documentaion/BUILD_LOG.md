@@ -88,3 +88,9 @@ The owner reported a Windows `npm install` failure: npm automatically selected R
 Declared React DOM `19.2.3`, Reanimated `4.5.1`, Worklets `0.10.1`, Gesture Handler `~2.32.0`, and React Native Web `~0.21.0` directly, matching Expo's SDK 57 bundled module map and default template. Reanimated `4.5.1` explicitly requires Worklets `0.10.x` and supports React Native `0.83 - 0.86`, including this project's `0.86.3`. Added PowerShell recovery instructions and an `npm ls` peer check to the local validation guide.
 
 Validation: reviewed the upstream version map, template, Router/UI peer metadata, Expo Modules Core's Worklets range, and Reanimated's peer metadata. No dependencies, tests or app code were installed or executed here. The owner's retry, compatible dependency tree, lockfile, source checks and native build remain pending.
+
+## Local Expo Doctor — required font peer correction
+
+After a local npm cache `ENOENT` and fresh-cache retry instructions, the owner supplied Expo Doctor output: **19/21 checks passed**. Both failures concern Expo Font: the manifest omitted the required native peer of `expo-symbols`, while the installed tree contained SDK 58 (`58.0.12`) and SDK 57 (`57.0.4`) font copies.
+
+Added `expo-font: ~57.0.4` as a direct dependency. Confirmed the requirement against `expo-symbols@57.0.3` peer metadata and the version against Expo's SDK 57 bundled module map. Added an owner-run `npm ls expo-font --all` check and instructions to update the existing install/lockfile and rerun Doctor and source checks. Source review and Git whitespace checks are the authoring-workspace validation; the corrected dependency tree, Doctor result and native build remain pending local execution.

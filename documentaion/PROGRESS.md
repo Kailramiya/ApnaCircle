@@ -37,7 +37,8 @@ These checks are evidence of source delivery, not evidence of a working native b
 
 - Windows: Java/Javac versions verified by the owner; ADB `37.0.0` reports the connected Android phone as `device` (authorized).
 - First `npm install`: **failed** with React DOM/React `ERESOLVE` and an incompatible Worklets peer warning.
-- Follow-up manifest correction explicitly declares the SDK 57 renderer, gesture and animation peer versions. Retry instructions are in `LOCAL_VERIFICATION.md`; successful install and checks are still pending.
+- Follow-up manifest correction explicitly declares the SDK 57 renderer, gesture and animation peer versions. A later install attempt hit a local npm cache `ENOENT`; fresh-cache retry instructions were supplied.
+- Latest owner-reported Expo Doctor result: **19/21 checks passed**. The two failures were a missing direct `expo-font` peer for `expo-symbols` and SDK 57/58 font duplicates. The manifest now explicitly declares `expo-font: ~57.0.4`; updated install/lockfile, Doctor and source checks remain pending. See `LOCAL_VERIFICATION.md` for commands.
 
 ## Pending owner-run validation
 
