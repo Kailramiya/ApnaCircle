@@ -81,6 +81,30 @@ TypeScript 6 defaults `compilerOptions.types` to an empty array. The shared conf
 
 Also run `npm audit` and retain the full report to identify affected packages, dependency paths and compatible fixes. Do not run `npm audit fix --force` blindly: it can move dependencies outside their supported ranges, including major-version changes. The 21/21 Doctor result does not resolve these audit findings.
 
+### Audit remediation status
+
+The owner's full report identifies these dependency paths:
+
+| Path | Evidence and action | Local validation status |
+|---|---|---|
+| `@expo/fingerprint` / `@typescript-eslint/typescript-estree` → `minimatch` | [GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249) is patched in 11.0.1. Scoped overrides target these two consumers. Their used APIs and the patched Node engine range were reviewed. | Updated installation, consumer compatibility tests and audit rerun pending |
+| `expo-router` → `query-string@7` → `decode-uri-component` | [GHSA-vcc3-ghjq-m6fr](https://github.com/advisories/GHSA-vcc3-ghjq-m6fr) and [GHSA-qr28-fpjm-wq7f](https://github.com/advisories/GHSA-qr28-fpjm-wq7f) require 0.5.1, whose ESM default export does not match query-string 7's callable CommonJS dependency. A modern query-string override also changes the namespace API used by SDK 57 Router. | Unresolved; requires a compatible upstream fix or a separately validated Router/SDK migration before release |
+
+These findings concern denial of service. The reported 13 vulnerabilities include affected parent packages; they are not 13 independently identified root causes. The root application does not directly import either package, but that does not prove the transitive runtime/tooling paths are unreachable. Keep the high-severity decoder finding open.
+
+After pulling the fixes, run each command separately and retain failures:
+
+```powershell
+git pull --ff-only --autostash
+npm install
+npm run check
+npm ls minimatch decode-uri-component --all
+npx expo-doctor
+npm audit
+```
+
+The compatibility test resolves dependencies through the actual consuming packages rather than assuming npm hoists them to the root. It checks fingerprint ignores, negation, dotfiles and parent paths, plus ESLint's matching API. This verifies selected integration behavior, not a complete performance/security proof. The new install must generate an updated lockfile; keep it. `npm audit` is expected to continue reporting the unresolved decoder path until a compatible remediation is implemented. Remove the minimatch overrides when both upstream consumers accept a patched release and the compatibility tests and audit confirm that no vulnerable copy remains. Do not use npm's suggested Expo 52 downgrade or Router 58 upgrade in isolation.
+
 ## 3. Database checks
 
 Run [`supabase/tests/rls.sql`](../supabase/tests/rls.sql) in a **dedicated development project** as its database owner, after applying the migrations. It creates two temporary auth users and fixtures inside a transaction, switches to the authenticated/anonymous roles, asserts ownership and private-data rules, and rolls everything back. It also exercises duplicate likes/saves/applications, trusted notifications and equal-timestamp pagination.
@@ -167,7 +191,7 @@ On a physical Android device, use the preview/release build and the 360-post see
 | Node/npm and lockfile | Owner installation completed; generated lockfile not yet committed |
 | Expo Doctor | Owner reported 21/21 passing after the font and TypeScript corrections |
 | TypeScript / ESLint / Node tests | Latest typecheck: 20 Node-declaration/narrowing errors in tests; config corrected, rerun pending; lint/tests not reached |
-| npm audit | Owner reported 13 vulnerabilities (10 moderate, 3 high); full report/triage pending |
+| npm audit | Full report reviewed; scoped minimatch correction awaiting validation; decoder path remains unresolved |
 | Migrations / SQL regression checks | Not run |
 | Android model / OS / build | Not tested |
 | iOS model / OS / build | Not tested |
