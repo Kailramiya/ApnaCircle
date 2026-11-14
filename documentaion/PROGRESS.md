@@ -33,6 +33,12 @@ The owner explicitly requested that dependencies, application code and tests not
 
 These checks are evidence of source delivery, not evidence of a working native build.
 
+## Owner-reported local results
+
+- Windows: Java/Javac versions verified by the owner; ADB `37.0.0` reports the connected Android phone as `device` (authorized).
+- First `npm install`: **failed** with React DOM/React `ERESOLVE` and an incompatible Worklets peer warning.
+- Follow-up manifest correction explicitly declares the SDK 57 renderer, gesture and animation peer versions. Retry instructions are in `LOCAL_VERIFICATION.md`; successful install and checks are still pending.
+
 ## Pending owner-run validation
 
 - [ ] Install dependencies, resolve compatibility, generate and commit `package-lock.json`.

@@ -80,3 +80,11 @@ Source review: checked immutable avatar paths, targeted preference updates, tran
 Reviewed the full navigation, account, permission and retry paths. Follow-up fixes keep auth callbacks mounted while profile loading changes, bridge native secure randomness/SHA-256 for PKCE, handle lifecycle refresh failures, keep offline notices inside safe areas and expose composer locality selection.
 
 Added Node regression checks, transactional two-user RLS/duplicate-write/cursor checks, a separate opt-in Storage API ownership/immutability check, local development-build scripts and EAS profiles. Updated the README, actual service contracts, design/schema notes and progress record. Source review and Git whitespace checks are complete; every runtime, SQL, accessibility, screenshot and build check remains pending local execution. No service was provisioned, no dependency installed, and no app/test/migration/build executed here.
+
+## First local installation — peer dependency correction
+
+The owner reported a Windows `npm install` failure: npm automatically selected React DOM `19.3.1` for broadly declared peers while the app uses React `19.2.3`. It also selected Worklets `0.13.1`, outside Expo Modules Core's allowed range. The original manifest did not explicitly constrain these Router dependency paths.
+
+Declared React DOM `19.2.3`, Reanimated `4.5.1`, Worklets `0.10.1`, Gesture Handler `~2.32.0`, and React Native Web `~0.21.0` directly, matching Expo's SDK 57 bundled module map and default template. Reanimated `4.5.1` explicitly requires Worklets `0.10.x` and supports React Native `0.83 - 0.86`, including this project's `0.86.3`. Added PowerShell recovery instructions and an `npm ls` peer check to the local validation guide.
+
+Validation: reviewed the upstream version map, template, Router/UI peer metadata, Expo Modules Core's Worklets range, and Reanimated's peer metadata. No dependencies, tests or app code were installed or executed here. The owner's retry, compatible dependency tree, lockfile, source checks and native build remain pending.

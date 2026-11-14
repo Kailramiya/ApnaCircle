@@ -16,7 +16,24 @@ npx expo install --check
 
 On Windows PowerShell, use `Copy-Item .env.example .env` instead of `cp`. Fill both public variables in `.env`; do not paste a service-role or secret key. The legacy anon key is also accepted in `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. Restart Metro whenever changing public environment values. Expo inlines these values into builds.
 
-The first install creates `package-lock.json`. After resolving any compatibility errors and passing the checks, commit that lockfile. Native dependency versions were selected from Expo's SDK 57 module map; the local install is still the first actual dependency-resolution check. Do not blindly upgrade to the newest SDK or bypass peer errors with `--force`.
+The first successful install creates `package-lock.json`. After resolving any compatibility errors and passing the checks, commit that lockfile. Native dependency versions were selected from Expo's SDK 57 module map; local installation must still establish that the full dependency tree resolves successfully. Do not blindly upgrade to the newest SDK or bypass peer errors with `--force`.
+
+### Recovering from the first Windows install failure
+
+The owner's first `npm install` failed with `ERESOLVE`: npm selected `react-dom@19.3.1` against the app's `react@19.2.3`, and warned about `react-native-worklets@0.13.1` outside Expo Modules Core's supported range. The manifest now explicitly declares Router's renderer and animation/gesture peers using the [SDK 57 version map](https://github.com/expo/expo/blob/sdk-57/packages/expo/bundledNativeModules.json): React DOM `19.2.3`, Reanimated `4.5.1`, Worklets `0.10.1`, Gesture Handler `~2.32.0`, and React Native Web `~0.21.0`. This is a source correction; a successful installation has not yet been reported.
+
+For this failed first installation, pull the fix and remove only the generated install artifacts before retrying. Run each command separately in **PowerShell** from the repository root; stop if a command fails. If pulling reports local source changes, preserve them and resolve that conflict before proceeding.
+
+```powershell
+git pull --ff-only
+if (Test-Path -LiteralPath node_modules) { Remove-Item -LiteralPath node_modules -Recurse -Force }
+if (Test-Path -LiteralPath package-lock.json) { Remove-Item -LiteralPath package-lock.json -Force }
+npm install
+npm ls react react-dom react-native-reanimated react-native-worklets react-native-gesture-handler react-native-web
+npx expo install --check
+```
+
+The cleanup above is for the initial failed install with no validated lockfile. Keep and commit the lockfile after a successful verified installation; subsequent clean checkouts should use `npm ci`. Do not add `--legacy-peer-deps` or `--force` to suppress this conflict. `npm ls` must exit successfully without invalid peers, and Expo's compatibility check must pass before continuing.
 
 Follow [`supabase/README.md`](../supabase/README.md) to create a dedicated development backend, apply both migrations in order and optionally load the demo seed. Set Auth's minimum password length to 8. Add `apnacircle://auth/callback` and `apnacircle://auth/callback?mode=recovery` to the redirect allowlist. Use your project's standard Supabase confirmation/recovery link templates. PKCE confirmation/recovery links must return to the device/app installation that requested them, where the verifier is stored.
 
