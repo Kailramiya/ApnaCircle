@@ -4,7 +4,7 @@
 
 Source review and `git diff --check` were performed before each pushed increment. **No dependency installation, TypeScript compilation, lint execution, automated tests, SQL execution, app launch, screenshots or builds were performed in the authoring workspace**, as requested. The checks below are runnable instructions, not passing results.
 
-Latest owner-provided Windows output: installation completed after Expo updated TypeScript to `~6.0.3`; Expo Doctor passed **21/21** checks. `npm run check` then stopped at a composer JSX parser error (TS2657/TS1005), now corrected in source. Lint and tests were not reached. npm also reported 13 vulnerabilities (10 moderate, 3 high); the advisory details remain unreviewed.
+Owner-provided Windows output: installation completed after Expo updated TypeScript to `~6.0.3`; Expo Doctor passed **21/21** checks. After the composer syntax correction, the latest typecheck reported 20 errors across seven test files because Node declarations were not loaded. The shared config now explicitly includes `node`, using the existing `@types/node` dependency. The next typecheck is pending; lint and tests have not been reached. npm also reported 13 vulnerabilities (10 moderate, 3 high).
 
 ## 1. Install and configure
 
@@ -76,6 +76,8 @@ npm run check
 ```
 
 The corrected category ternary must parse in both locked and editable states. A source fix is not evidence of a passing typecheck; retain the new output. On-device category/locality selection, locked retry state, keyboard layout and accessibility remain part of the device checklist.
+
+TypeScript 6 defaults `compilerOptions.types` to an empty array. The shared config explicitly includes `node` for `node:test`, `node:crypto`, `Buffer`, and assertion narrowing. Do not remove tests from the typecheck or add non-null assertions to suppress these errors. See the [TypeScript 6 release note](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-6-0.html#types-now-defaults-to-).
 
 Also run `npm audit` and retain the full report to identify affected packages, dependency paths and compatible fixes. Do not run `npm audit fix --force` blindly: it can move dependencies outside their supported ranges, including major-version changes. The 21/21 Doctor result does not resolve these audit findings.
 
@@ -164,7 +166,7 @@ On a physical Android device, use the preview/release build and the 360-post see
 | Commit tested | Not recorded |
 | Node/npm and lockfile | Owner installation completed; generated lockfile not yet committed |
 | Expo Doctor | Owner reported 21/21 passing after the font and TypeScript corrections |
-| TypeScript / ESLint / Node tests | TypeScript failed with composer TS2657/TS1005; source corrected, rerun pending; lint/tests not reached |
+| TypeScript / ESLint / Node tests | Latest typecheck: 20 Node-declaration/narrowing errors in tests; config corrected, rerun pending; lint/tests not reached |
 | npm audit | Owner reported 13 vulnerabilities (10 moderate, 3 high); full report/triage pending |
 | Migrations / SQL regression checks | Not run |
 | Android model / OS / build | Not tested |

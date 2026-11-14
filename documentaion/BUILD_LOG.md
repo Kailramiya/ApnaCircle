@@ -102,3 +102,9 @@ The owner accepted Expo's TypeScript compatibility update to `~6.0.3`; npm compl
 The owner's `npm run check` then stopped with TS2657/TS1005 in the composer. Its category ternary was missing a closing `}`. Closed the expression and formatted both branches so the locality and photo controls are visibly separate siblings. Reviewed the create-route caller, shared Chips component and nearby conditional JSX; this change does not introduce new logic. The existing `npm run typecheck` is the regression check for this parser failure, followed by the full check script.
 
 Authoring validation remains source review and Git whitespace inspection only. TypeScript, lint, tests and the app were not executed here. A new successful typecheck, lint/test output, audit triage and native rendering are still pending from the owner.
+
+## TypeScript 6 — explicit Node test declarations
+
+The owner's attached rerun reported 20 errors across seven test files: unresolved `node:test`, `node:assert/strict`, `node:crypto` and `Buffer`, plus failed narrowing after `assert.ok(api)`. `@types/node` was already a dev dependency. TypeScript 6 changed the default `compilerOptions.types` to an empty array, so the shared `tsconfig.json` now explicitly includes `node`. Existing tests remain included and strictness is unchanged; no casts or assertion removal are needed.
+
+Reviewed the TypeScript 6 release note, Expo's base config, all Node imports and the PKCE assertion call. The existing `npm run check` is the owner-run regression check. No compiler, tests or application code were executed here.
