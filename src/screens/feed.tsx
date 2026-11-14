@@ -4,6 +4,7 @@ import { Stack } from 'expo-router/stack';
 import { AppText, Button, Chips, Field, Notice, Screen, styles } from '@/components/ui';
 import { PagedList } from '@/components/paged-list';
 import { PostCard } from '@/components/post-card';
+import { NotificationBell } from '@/components/notification-bell';
 import { usePosts } from '@/hooks/posts';
 import { useI18n } from '@/store/preferences';
 import { categories, localities, localityKeys, type Post } from '@/lib/models';
@@ -27,5 +28,5 @@ export default function FeedScreen() {
     <Chips value={locality} onChange={setLocality} options={[{ value: '', label: t('allLocalities') }, ...localities.map((value) => ({ value, label: t(localityKeys[value]) }))]} />
     <Notice message={t('demoNotice')} />
   </View>;
-  return <Screen scroll={false}><Stack.Screen options={{ title: t('appName') }} /><PagedList query={query} renderItem={(post) => <PostCard post={post} />} header={header} emptyTitle={t(search || category || locality ? 'noMatches' : 'noPosts')} emptyBody={t(search || category || locality ? 'noMatchesBody' : 'noPostsBody')} /></Screen>;
+  return <Screen scroll={false}><Stack.Screen options={{ title: t('appName'), headerRight: () => <NotificationBell /> }} /><PagedList query={query} renderItem={(post) => <PostCard post={post} />} header={header} emptyTitle={t(search || category || locality ? 'noMatches' : 'noPosts')} emptyBody={t(search || category || locality ? 'noMatchesBody' : 'noPostsBody')} /></Screen>;
 }

@@ -68,3 +68,9 @@ Source review: checked mutation ownership, late-account guards, targeted rollbac
 Added searchable/filterable jobs, job details, optimistic private saves, one application per user/job, application reconciliation and paginated application history. Saved now switches between posts/jobs. All five native tabs are present. Applications clearly state they do not reach employers.
 
 Source review: traced unique-key retries, private history policies and saved/application cursor sources. Also kept the auth navigator mounted during callbacks and confined account-triggered navigation resets to the signed-in app. Runtime navigation, duplicate-apply and account-switch checks remain pending locally.
+
+## Profiles, preferences and activity — source authored
+
+Added profile/avatar editing, a reused onboarding/profile form, saved/application shortcuts, own-post pagination, persisted language/locality preferences and confirmed logout. Added recipient-only activity lists, unread badge and narrow mark-read writes; like/comment events come only from the backend triggers. New-profile retries reconcile an already committed onboarding row.
+
+Source review: checked immutable avatar paths, targeted preference updates, translated labels and notification ownership. Native avatar selection, English/Hindi scaling, sign-out draft clearing and cross-user activity behavior remain pending locally. Push notifications are outside this MVP.

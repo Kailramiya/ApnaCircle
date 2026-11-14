@@ -45,3 +45,8 @@ export const jobSchema = z.object({
   saved: z.boolean(), applied: z.boolean(), application_created_at: z.string().nullable(), ...cursorFields,
 });
 export type Job = z.infer<typeof jobSchema>;
+export const notificationSchema = z.object({
+  id: z.uuid(), post_id: z.uuid(), actor_name: z.string(), type: z.enum(['like', 'comment']),
+  is_read: z.boolean(), created_at: z.string(), ...cursorFields,
+});
+export type Notification = z.infer<typeof notificationSchema>;

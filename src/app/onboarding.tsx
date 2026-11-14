@@ -1,1 +1,2 @@
-export { default } from '@/screens/onboarding';
+import { ProfileForm } from '@/components/profile-form';
+export default function Onboarding() { return <ProfileForm />; }
