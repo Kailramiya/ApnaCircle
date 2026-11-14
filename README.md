@@ -4,7 +4,7 @@
 
 An Android-first community and local-jobs portfolio app for Jaipur, with English and Hindi interfaces. Built with Expo SDK 57, React Native, TypeScript and Supabase.
 
-**Status:** MVP source is authored and pushed feature by feature. At the owner's request, no dependencies, application code, tests, SQL or builds were run in the authoring workspace. Source review and Git whitespace checks are complete; runtime verification is pending. No APK, screenshots, passing test badge or demo video is claimed.
+**Status:** MVP source is authored and pushed feature by feature. The owner reports source checks passed and the app works after manual testing. At the owner's request, no dependencies, application code, tests, SQL or builds were run in the authoring workspace. The latest audit still reports 3 high findings in Router's URI-decoder dependency chain. A standalone APK and GitHub release are being prepared; neither is published yet. See the [verification record](documentaion/LOCAL_VERIFICATION.md) for the limits of these reports.
 
 ## Feature source
 
@@ -41,7 +41,7 @@ npm run android:build
 
 `android:build` requires a local Android SDK/device or emulator and creates a development build. After installation, use `npm run dev` to start Metro. On macOS with Xcode, use `npm run ios:build`. Custom-scheme auth callbacks need the app's development/release build; Expo Go is not sufficient evidence for them.
 
-The first install generates `package-lock.json`; commit it after compatibility checks. The manifest follows Expo's [SDK 57 native-module versions](https://github.com/expo/expo/blob/sdk-57/packages/expo/bundledNativeModules.json); dependency resolution has not yet been executed.
+The first install generates `package-lock.json`; commit it after compatibility checks. The manifest follows Expo's [SDK 57 native-module versions](https://github.com/expo/expo/blob/sdk-57/packages/expo/bundledNativeModules.json). The owner has installed dependencies and reported a 21/21 Expo Doctor pass; their generated lockfile still needs review and committing.
 
 See [LOCAL_VERIFICATION.md](documentaion/LOCAL_VERIFICATION.md) for Windows notes, two-user SQL/Storage checks, offline/permission scenarios, screenshot comparisons and device acceptance criteria.
 
@@ -80,6 +80,6 @@ Image buckets are intentionally public. Uncertain uploads are retained for revie
 
 `npm run check` runs TypeScript, ESLint and Node logic tests. Backend permissions/cursors have a separate transactional SQL check. `npm run test:storage` is an explicit opt-in integration check with two locally configured test accounts and a JPEG; it is not part of the default test command.
 
-EAS profiles are provided for development, installable Android preview APKs and production bundles. Link your own Expo project and configure its public environment variables before building. Nothing has been deployed or submitted to an app store. Follow the [local build/evidence procedure](documentaion/LOCAL_VERIFICATION.md).
+EAS profiles are provided for development, installable Android preview APKs and production bundles. Follow the [Windows APK and GitHub release guide](documentaion/ANDROID_RELEASE.md) for public environment settings, signing, standalone testing, checksums and attaching the binary to its exact source tag. No APK release or app-store submission has been completed. The guide records the unresolved decoder audit findings and why forcing Router 58 into SDK 57 is not a compatible fix.
 
 The [progress record](documentaion/PROGRESS.md) separates authored source from verified behavior. The [build log](documentaion/BUILD_LOG.md) records each delivery increment. The preserved `documentaion/` spelling avoids breaking the original project paths.

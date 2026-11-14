@@ -21,7 +21,7 @@ The owner explicitly requested that dependencies, application code and tests not
 | Activity | Trusted like/comment triggers, recipient-only feed, unread count and mark-read | Backend/device checks pending |
 | Localization/UI | English/Hindi messages, locale formatting, scalable text and control labels | Screenshots/accessibility pending |
 | Tests | Node logic checks, transactional RLS/cursor checks, opt-in Storage API integration check | Previous Node suite owner-reported pass; new auth error checks and SQL/Storage checks pending |
-| Release | Local development-client scripts and EAS development/preview/production profiles | No standalone APK or store submission recorded |
+| Release | Local development-client scripts, EAS profiles and Windows APK/GitHub release guide | Awaiting owner build, standalone validation and artifact; nothing published |
 
 ## Verified in this workspace
 
@@ -72,7 +72,7 @@ These checks are evidence of source delivery, not evidence of a working native b
 - [ ] Produce an installable APK, app icon/splash assets and a short honest demo.
 - [ ] Record iOS validation separately; it is currently unverified.
 
-Use [`LOCAL_VERIFICATION.md`](LOCAL_VERIFICATION.md) for commands, acceptance cases and the evidence record.
+Use [`LOCAL_VERIFICATION.md`](LOCAL_VERIFICATION.md) for commands, acceptance cases and the evidence record. [`ANDROID_RELEASE.md`](ANDROID_RELEASE.md) covers the signed preview APK, exact source commit, checksum and GitHub Release handoff. The latest supplied audit still has 3 high findings; the owner's modified `.gitignore`, `expo-env.d.ts`, `package.json` and untracked lockfile require review before packaging.
 
 ## Decisions and limits
 
