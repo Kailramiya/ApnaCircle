@@ -17,13 +17,14 @@ The app maps known Auth error codes to English/Hindi messages; an unknown failur
 
 | Error code | Action |
 |---|---|
+| Gateway `UNAUTHORIZED_INVALID_API_KEY` / HTTP 401 | Copy the publishable key from the same project as the URL. Check for an extra leading `=` or placeholder in `.env`, then restart Expo and fully reload the app. |
 | `email_address_not_authorized` | The default email service sends only to existing organization members. Use an already-authorized address for development, or configure custom SMTP to send to other app users. |
 | `over_email_send_rate_limit` / `over_request_rate_limit` | Wait for the limit to reset; repeated retries do not fix it. Review Auth limits and email delivery configuration. |
 | `signup_disabled` / `email_provider_disabled` | Check that new-user signup and the email/password provider are enabled. |
 | `weak_password` | Use a password that satisfies the project's configured strength requirements. |
 | `unexpected_failure` or a database error | Inspect the related Auth/Postgres log entry before changing migrations, triggers or permissions. |
 
-These are diagnostic branches, not a diagnosis of the owner's reported failure. The actual server error is still needed. Keep email confirmation enabled for the public demo. Default email restrictions and custom SMTP setup are documented in [Supabase's email guide](https://supabase.com/docs/guides/auth/auth-smtp); error meanings are in the [Auth error reference](https://supabase.com/docs/guides/auth/debugging/error-codes).
+The owner's supplied event confirmed the gateway invalid-key branch: the key prefix began with an extra `=`. After configuration and migration guidance, the owner reported the app working. Use the other branches only when a new event supports them. Keep email confirmation enabled for the public demo. Default email restrictions and custom SMTP setup are documented in [Supabase's email guide](https://supabase.com/docs/guides/auth/auth-smtp); error meanings are in the [Auth error reference](https://supabase.com/docs/guides/auth/debugging/error-codes).
 
 ## Security and media
 

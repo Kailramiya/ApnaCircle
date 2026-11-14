@@ -6,7 +6,7 @@ Source review and `git diff --check` were performed before each pushed increment
 
 The owner now reports **all of `npm run check` passed** after the composer follow-up (`e4c3b28`): TypeScript, ESLint and Node tests. The full successful transcript and test count were not supplied; this is recorded as an owner-reported pass. The last supplied Expo Doctor result is **21/21**; both scoped minimatch paths resolve to **11.0.1**, and the last audit has **3 high findings**, all along Router's URI-decoder dependency chain. Database, Storage API and native device validation remain pending.
 
-Since that pass, the owner has reached the app's signup screen and reported a generic account-creation failure. Known Auth failures now have specific bilingual messages and a new regression test file. Rerun `npm run check` after pulling this change, then restart with `npm run dev -- --clear` and inspect one signup attempt. Follow [the backend troubleshooting guide](../supabase/README.md#diagnosing-a-failed-signup) to capture the actual Auth error. The prior source-check pass does not validate this new patch or establish successful authentication.
+After that pass, a signup failure was traced to **401 / `UNAUTHORIZED_INVALID_API_KEY`**: the supplied gateway log showed an extra leading `=` in the key value. Local `.env` correction and database setup guidance were supplied, and the owner now reports the app is working and has been manually tested. Known Auth failures also have specific bilingual messages and a new regression test file. Capture the current `npm run check`, dependency audit and lockfile status before packaging. The manual-testing report does not replace the SQL/Storage checks, detailed acceptance record or standalone APK verification.
 
 ## 1. Install and configure
 
@@ -217,8 +217,8 @@ On a physical Android device, use the preview/release build and the 360-post see
 | Node tests | Previous suite owner-reported pass, including dependency compatibility; new auth error checks pending |
 | npm audit | Owner report reduced from 13 findings to 3 high findings in Router's decoder chain; both minimatch overrides resolve to 11.0.1 |
 | Migrations / SQL regression checks | Execution not confirmed |
-| Android model / OS / build | Owner reports in-app setup and signup screens; build/device details and full-flow results pending |
-| Account creation | Owner reports generic failure; actual server error and successful signup pending |
+| Android model / OS / build | Owner reports app working and manually tested; device/build details, case-by-case evidence and standalone APK verification pending |
+| Account creation | Gateway invalid-key error with an extra leading equals sign identified; owner subsequently reports app working |
 | iOS model / OS / build | Not tested |
 | English/Hindi screenshots | Not captured |
 | Accessibility review | Not performed on device |

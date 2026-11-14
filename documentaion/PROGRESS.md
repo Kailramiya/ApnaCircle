@@ -2,7 +2,7 @@
 
 ## Current status
 
-The MVP source is authored and pushed to `Kailramiya/ApnaCircle` in real feature increments. The repository now contains an Expo SDK 57 app, Supabase migrations/seed, regression checks and local build instructions. This is **not a runtime-verified release**.
+The MVP source is authored and pushed to `Kailramiya/ApnaCircle` in real feature increments. The owner now reports the app is working and has been manually tested. The repository contains an Expo SDK 57 app, Supabase migrations/seed, regression checks and local build instructions. A standalone release build and the remaining verification evidence are still pending.
 
 The owner explicitly requested that dependencies, application code and tests not be installed or run in the authoring workspace. Each increment received source review and Git whitespace checks. Do not turn the pending checks below into passes without actual output/device evidence.
 
@@ -10,9 +10,9 @@ The owner explicitly requested that dependencies, application code and tests not
 
 | Area | Source coverage | Execution status |
 |---|---|---|
-| Foundation | Strict TypeScript, SDK-compatible manifest, native tabs/stacks, theme, reusable controls | Owner reports full check passed; prior Doctor 21/21; native build pending |
+| Foundation | Strict TypeScript, SDK-compatible manifest, native tabs/stacks, theme, reusable controls | Owner reports app working; previous full check pass and Doctor 21/21; standalone build pending |
 | Backend | Nine tables, constraints, column grants, RLS, immutable public media, read-model RPCs | Migration execution not confirmed |
-| Authentication | Registration/login, PKCE callback/recovery, SecureStore sessions, lifecycle refresh | Owner reaches signup but reports failure; actual Auth error pending; clearer error messages authored |
+| Authentication | Registration/login, PKCE callback/recovery, SecureStore sessions, lifecycle refresh | Invalid API-key cause identified; owner now reports app working; per-flow results not recorded |
 | Onboarding/profile | Name/username/bio, avatars, Jaipur locality and English/Hindi preferences | Device checks pending |
 | Community | Feed, search, filters, composite-cursor pagination, refresh, post details | Backend/device checks pending |
 | Composer | Text/photo validation, stable submission UUID, retry reconciliation, retained drafts | Failure/device checks pending |
@@ -21,7 +21,7 @@ The owner explicitly requested that dependencies, application code and tests not
 | Activity | Trusted like/comment triggers, recipient-only feed, unread count and mark-read | Backend/device checks pending |
 | Localization/UI | English/Hindi messages, locale formatting, scalable text and control labels | Screenshots/accessibility pending |
 | Tests | Node logic checks, transactional RLS/cursor checks, opt-in Storage API integration check | Previous Node suite owner-reported pass; new auth error checks and SQL/Storage checks pending |
-| Release | Local development-client scripts and EAS development/preview/production profiles | No build or store submission |
+| Release | Local development-client scripts and EAS development/preview/production profiles | No standalone APK or store submission recorded |
 
 ## Verified in this workspace
 
@@ -46,6 +46,8 @@ These checks are evidence of source delivery, not evidence of a working native b
 - The latest owner dependency tree confirms `minimatch@11.0.1` under both fingerprint and TypeScript ESLint. The new audit has **3 high findings**, down from 13 (10 moderate, 3 high); no minimatch finding remains. The URI decoder remains unresolved through `expo-router` → `query-string` → `decode-uri-component`: its patched release is ESM-only and is not a callable CommonJS replacement for `query-string@7`. Do not infer security status from the repeated Doctor **21/21** pass.
 - After the composer follow-up (`e4c3b28`), the owner reports **all checks passed**, confirming TypeScript, ESLint and the Node test command, including dependency compatibility checks. This is an owner-reported result; the full successful transcript, test count and exact local working-tree revision were not supplied. SQL, Storage API and native build/device results remain pending.
 - The owner subsequently reported a Windows `JAVA_HOME` build error, then an in-app missing-Supabase-configuration screen and a failed signup. Local environment/database setup guidance was supplied. The signup screen discarded all server errors; a shared Auth code mapper now supplies specific bilingual messages for known failures across signup, sign-in and password reset. Added runnable regression checks. The real server error, successful signup, and post-change check results remain pending; default SMTP restrictions are only a possibility until logs confirm them.
+- The supplied signup event subsequently established a gateway **401 / `UNAUTHORIZED_INVALID_API_KEY`**, with an extra leading `=` in the public-key value. Guided the owner to correct `.env` and reload; also supplied migration/table verification steps when no tables were visible. The owner now reports the app is working and has been tested throughout. This is a manual-testing report, not new npm/SQL/Storage test output, a measured performance result or standalone APK evidence. The previously suggested SMTP restriction was not the cause shown in that event.
+- Confirmed the current jobs scope: authenticated users browse/save jobs and submit demo applications; trusted administration supplies listings. User job posting and employer workflows are not implemented, and no expansion has been authorized yet.
 
 ## Pending owner-run validation
 
@@ -55,6 +57,8 @@ These checks are evidence of source delivery, not evidence of a working native b
 - [x] Rerun the full TypeScript, ESLint and Node checks after the React hooks corrections (owner reports all passed).
 - [x] Verify both scoped minimatch updates locally and capture the reduced audit report.
 - [x] Execute the minimatch consumer compatibility checks included in `npm test` (covered by the reported full check pass).
+- [x] Reach a working app and perform manual testing (owner report; individual cases not supplied).
+- [ ] Capture the current full source-check result after the Auth error-message patch.
 - [ ] Resolve the remaining URI-decoder advisory through a compatible upstream fix or a separately validated Router/SDK migration before release.
 - [ ] Apply migrations and demo seed in a dedicated Supabase development project.
 - [ ] Pass SQL RLS/duplicate-write/equal-timestamp checks and Storage API integration checks.
