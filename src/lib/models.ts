@@ -30,3 +30,8 @@ export const postSchema = z.object({
   like_count: z.number(), comment_count: z.number(), liked: z.boolean(), saved: z.boolean(), ...cursorFields,
 });
 export type Post = z.infer<typeof postSchema>;
+export const postInput = z.object({
+  description: z.string().trim().min(1, 'invalidPost').max(2000, 'invalidPost'),
+  category: z.enum(categories), locality: z.enum(localities),
+});
+export type PostInput = z.infer<typeof postInput>;

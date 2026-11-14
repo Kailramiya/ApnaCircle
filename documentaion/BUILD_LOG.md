@@ -50,3 +50,9 @@ Source review: inspected session initialization races, partial storage writes, a
 Added native tab navigation, real Supabase feed/detail queries, explicit search submission, category/locality filters, refresh/retry/empty states, avatars, demo labels, media rendering and virtualized cursor pagination. Query keys include viewer and filters; timestamp strings remain untouched. Added runnable precision and duplicate-row checks.
 
 Source review: followed filters through query keys/RPC arguments, checked row parsing and stable cursor fields, and reviewed large-text layout and accessible controls. Native rendering, keyboard behavior, pagination SQL and scrolling performance remain unverified locally.
+
+## Composer and media recovery — source authored
+
+Added validated post composition, native photo selection, bounded JPEG preparation and immutable uploads. Each submission freezes one UUID/text/photo snapshot. Retry reconciles the same row before uploading/inserting, and reconciles again after an insert error. No uncertain-response cleanup can delete a published image. Active tab switches retain the draft; explicit discard/back removal asks for confirmation. Session/account unmount clears in-memory drafts.
+
+Source review: traced cancellation, denial, upload failure, lost insert response, duplicate UUID and late-account results. Added runnable recovery checks. Permission dialogs, image bytes, navigation guards, database races and the rendered composer require local native testing. Abandoned uploads are retained for reviewed maintenance, as documented in `supabase/README.md`.
