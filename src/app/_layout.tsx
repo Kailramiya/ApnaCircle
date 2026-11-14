@@ -14,7 +14,7 @@ export function ErrorBoundary({ retry }: ErrorBoundaryProps) {
 function Navigation() {
   const { t } = useI18n();
   const auth = useAuth();
-  return <Stack key={auth.session?.user.id ?? 'guest'} screenOptions={{ headerTintColor: colors.text, headerShadowVisible: false, contentStyle: { backgroundColor: colors.background } }}>
+  return <Stack screenOptions={{ headerTintColor: colors.text, headerShadowVisible: false, contentStyle: { backgroundColor: colors.background } }}>
     <Stack.Screen name="index" options={{ headerShown: false }} />
     <Stack.Screen name="auth/callback" options={{ title: t('appName') }} />
     <Stack.Protected guard={auth.ready && !auth.session && !auth.error}><Stack.Screen name="login" /></Stack.Protected>

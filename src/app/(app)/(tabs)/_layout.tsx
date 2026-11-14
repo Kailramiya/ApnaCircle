@@ -6,6 +6,7 @@ export default function TabsLayout() {
   const { t } = useI18n();
   return <NativeTabs tintColor={colors.primary}>
     <NativeTabs.Trigger name="home"><NativeTabs.Trigger.Label>{t('home')}</NativeTabs.Trigger.Label><NativeTabs.Trigger.Icon sf="house.fill" md="home" /></NativeTabs.Trigger>
+    <NativeTabs.Trigger name="jobs"><NativeTabs.Trigger.Label>{t('jobs')}</NativeTabs.Trigger.Label><NativeTabs.Trigger.Icon sf="briefcase.fill" md="work" /></NativeTabs.Trigger>
     <NativeTabs.Trigger name="create"><NativeTabs.Trigger.Label>{t('create')}</NativeTabs.Trigger.Label><NativeTabs.Trigger.Icon sf="plus.circle.fill" md="add_circle" /></NativeTabs.Trigger>
     <NativeTabs.Trigger name="saved"><NativeTabs.Trigger.Label>{t('saved')}</NativeTabs.Trigger.Label><NativeTabs.Trigger.Icon sf="bookmark.fill" md="bookmark" /></NativeTabs.Trigger>
     <NativeTabs.Trigger name="profile"><NativeTabs.Trigger.Label>{t('profile')}</NativeTabs.Trigger.Label><NativeTabs.Trigger.Icon sf="person.crop.circle" md="person" /></NativeTabs.Trigger>

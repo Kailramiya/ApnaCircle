@@ -62,3 +62,9 @@ Source review: traced cancellation, denial, upload failure, lost insert response
 Added desired-state likes/saves, optimistic cache updates with field-scoped rollback, owner post/comment deletion, paginated conversations and private saved posts. Comment retries reuse their original ID/content; failed input remains visible. Repeated requests rely on database uniqueness, not button state alone.
 
 Source review: checked mutation ownership, late-account guards, targeted rollback and saved-record ordering. Added a runnable idempotent optimistic-state check. Live RLS, duplicate submissions, notification side effects and offline interaction checks remain pending locally.
+
+## Local jobs and applications — source authored
+
+Added searchable/filterable jobs, job details, optimistic private saves, one application per user/job, application reconciliation and paginated application history. Saved now switches between posts/jobs. All five native tabs are present. Applications clearly state they do not reach employers.
+
+Source review: traced unique-key retries, private history policies and saved/application cursor sources. Also kept the auth navigator mounted during callbacks and confined account-triggered navigation resets to the signed-in app. Runtime navigation, duplicate-apply and account-switch checks remain pending locally.

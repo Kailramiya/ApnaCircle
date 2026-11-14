@@ -38,3 +38,10 @@ export type PostInput = z.infer<typeof postInput>;
 export const commentSchema = z.object({ id: z.uuid(), post_id: z.uuid(), user_id: z.uuid(), content: z.string(), created_at: z.string(), author: authorSchema, ...cursorFields });
 export type Comment = z.infer<typeof commentSchema>;
 export const commentInput = z.string().trim().min(1, 'invalidComment').max(500, 'invalidComment');
+export const jobSchema = z.object({
+  id: z.uuid(), title: z.string(), company_name: z.string(), description: z.string(),
+  salary_min: z.number().nullable(), salary_max: z.number().nullable(), employment_type: z.enum(employmentTypes),
+  city: z.literal('Jaipur'), locality: z.enum(localities), is_demo: z.boolean(), created_at: z.string(),
+  saved: z.boolean(), applied: z.boolean(), application_created_at: z.string().nullable(), ...cursorFields,
+});
+export type Job = z.infer<typeof jobSchema>;
