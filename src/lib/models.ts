@@ -20,3 +20,13 @@ export const credentialsSchema = z.object({
   password: z.string().min(8, 'invalidPassword').max(72, 'invalidPassword'),
 });
 export type Credentials = z.infer<typeof credentialsSchema>;
+
+const authorSchema = profileSchema.pick({ id: true, full_name: true, username: true, avatar_path: true });
+export const cursorFields = { sort_at: z.string(), sort_id: z.uuid() };
+export const postSchema = z.object({
+  id: z.uuid(), user_id: z.uuid(), description: z.string(), image_path: z.string().nullable(),
+  category: z.enum(categories), city: z.literal('Jaipur'), locality: z.enum(localities),
+  is_demo: z.boolean(), created_at: z.string(), author: authorSchema,
+  like_count: z.number(), comment_count: z.number(), liked: z.boolean(), saved: z.boolean(), ...cursorFields,
+});
+export type Post = z.infer<typeof postSchema>;

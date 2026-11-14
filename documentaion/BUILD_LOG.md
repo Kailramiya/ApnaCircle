@@ -44,3 +44,9 @@ Source review: traced each table's read/write actor, private saved/application s
 Added email registration/login, confirmation and password recovery, protected routes, encrypted chunked session persistence, lifecycle refresh, network/focus integration, account cache isolation and bilingual profile onboarding. Outgoing queries are cancelled and cache cleared on account change; mutations check the originating account before updating UI state. The reset callback uses a PKCE code and the configured custom scheme.
 
 Source review: inspected session initialization races, partial storage writes, auth error states, onboarding validation, column-grant-compatible profile writes and public-only environment configuration. Email delivery, native deep links, restart/background sessions, account switching and SecureStore behavior remain pending local checks.
+
+## Community feed — source authored
+
+Added native tab navigation, real Supabase feed/detail queries, explicit search submission, category/locality filters, refresh/retry/empty states, avatars, demo labels, media rendering and virtualized cursor pagination. Query keys include viewer and filters; timestamp strings remain untouched. Added runnable precision and duplicate-row checks.
+
+Source review: followed filters through query keys/RPC arguments, checked row parsing and stable cursor fields, and reviewed large-text layout and accessible controls. Native rendering, keyboard behavior, pagination SQL and scrolling performance remain unverified locally.
