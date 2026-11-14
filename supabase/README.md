@@ -11,6 +11,20 @@ Create a dedicated Supabase development project. In its SQL editor run the files
 
 The seed creates 6 explicitly fictional authors, 360 posts and 24 jobs. It is repeatable by fixed primary keys, including exact timestamp ties. It does not erase existing user data.
 
+## Diagnosing a failed signup
+
+The app maps known Auth error codes to English/Hindi messages; an unknown failure still uses a generic message. In the project's **Logs** view, select the **Auth** log type and the time range covering the failed attempt, then inspect its error code, message and status. If there is no matching Auth event, check **API Gateway** events for `/auth/v1/signup` and confirm the device can reach the configured project. Share only the relevant error fields, not credentials, tokens or complete request headers. See [Logs in Studio](https://supabase.com/docs/guides/observability/logs).
+
+| Error code | Action |
+|---|---|
+| `email_address_not_authorized` | The default email service sends only to existing organization members. Use an already-authorized address for development, or configure custom SMTP to send to other app users. |
+| `over_email_send_rate_limit` / `over_request_rate_limit` | Wait for the limit to reset; repeated retries do not fix it. Review Auth limits and email delivery configuration. |
+| `signup_disabled` / `email_provider_disabled` | Check that new-user signup and the email/password provider are enabled. |
+| `weak_password` | Use a password that satisfies the project's configured strength requirements. |
+| `unexpected_failure` or a database error | Inspect the related Auth/Postgres log entry before changing migrations, triggers or permissions. |
+
+These are diagnostic branches, not a diagnosis of the owner's reported failure. The actual server error is still needed. Keep email confirmation enabled for the public demo. Default email restrictions and custom SMTP setup are documented in [Supabase's email guide](https://supabase.com/docs/guides/auth/auth-smtp); error meanings are in the [Auth error reference](https://supabase.com/docs/guides/auth/debugging/error-codes).
+
 ## Security and media
 
 All client tables enforce RLS and column grants. Jobs are writable only by trusted administration. Notifications originate from database triggers; recipients can change only `is_read`. Read-model RPCs execute with the caller's permissions. Saved items and applications are private.

@@ -11,8 +11,8 @@ The owner explicitly requested that dependencies, application code and tests not
 | Area | Source coverage | Execution status |
 |---|---|---|
 | Foundation | Strict TypeScript, SDK-compatible manifest, native tabs/stacks, theme, reusable controls | Owner reports full check passed; prior Doctor 21/21; native build pending |
-| Backend | Nine tables, constraints, column grants, RLS, immutable public media, read-model RPCs | Migrations not executed |
-| Authentication | Registration/login, PKCE callback/recovery, SecureStore sessions, lifecycle refresh | Native/email checks pending |
+| Backend | Nine tables, constraints, column grants, RLS, immutable public media, read-model RPCs | Migration execution not confirmed |
+| Authentication | Registration/login, PKCE callback/recovery, SecureStore sessions, lifecycle refresh | Owner reaches signup but reports failure; actual Auth error pending; clearer error messages authored |
 | Onboarding/profile | Name/username/bio, avatars, Jaipur locality and English/Hindi preferences | Device checks pending |
 | Community | Feed, search, filters, composite-cursor pagination, refresh, post details | Backend/device checks pending |
 | Composer | Text/photo validation, stable submission UUID, retry reconciliation, retained drafts | Failure/device checks pending |
@@ -20,7 +20,7 @@ The owner explicitly requested that dependencies, application code and tests not
 | Jobs | Listings/detail, filters, private saves, unique applications and history | Two-user/runtime checks pending |
 | Activity | Trusted like/comment triggers, recipient-only feed, unread count and mark-read | Backend/device checks pending |
 | Localization/UI | English/Hindi messages, locale formatting, scalable text and control labels | Screenshots/accessibility pending |
-| Tests | Node logic checks, transactional RLS/cursor checks, opt-in Storage API integration check | Owner reports Node checks passed; SQL and Storage integration checks pending |
+| Tests | Node logic checks, transactional RLS/cursor checks, opt-in Storage API integration check | Previous Node suite owner-reported pass; new auth error checks and SQL/Storage checks pending |
 | Release | Local development-client scripts and EAS development/preview/production profiles | No build or store submission |
 
 ## Verified in this workspace
@@ -45,6 +45,7 @@ These checks are evidence of source delivery, not evidence of a working native b
 - After pulling `3f53bb8` with local edits successfully autostashed/restored, the owner again passed TypeScript. ESLint now reports **1 error and 0 warnings**: the composer's render-time `handleSubmit` call receives a callback that reads refs. That call now runs inside the button's press handler, retaining validation, submission tracking and the stable retry snapshot. The next full check remains pending; Node tests are still not reached.
 - The latest owner dependency tree confirms `minimatch@11.0.1` under both fingerprint and TypeScript ESLint. The new audit has **3 high findings**, down from 13 (10 moderate, 3 high); no minimatch finding remains. The URI decoder remains unresolved through `expo-router` → `query-string` → `decode-uri-component`: its patched release is ESM-only and is not a callable CommonJS replacement for `query-string@7`. Do not infer security status from the repeated Doctor **21/21** pass.
 - After the composer follow-up (`e4c3b28`), the owner reports **all checks passed**, confirming TypeScript, ESLint and the Node test command, including dependency compatibility checks. This is an owner-reported result; the full successful transcript, test count and exact local working-tree revision were not supplied. SQL, Storage API and native build/device results remain pending.
+- The owner subsequently reported a Windows `JAVA_HOME` build error, then an in-app missing-Supabase-configuration screen and a failed signup. Local environment/database setup guidance was supplied. The signup screen discarded all server errors; a shared Auth code mapper now supplies specific bilingual messages for known failures across signup, sign-in and password reset. Added runnable regression checks. The real server error, successful signup, and post-change check results remain pending; default SMTP restrictions are only a possibility until logs confirm them.
 
 ## Pending owner-run validation
 

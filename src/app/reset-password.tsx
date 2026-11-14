@@ -5,6 +5,7 @@ import { useI18n } from '@/store/preferences';
 import { useAuth } from '@/providers';
 import { updatePassword } from '@/services/auth';
 import { credentialsSchema } from '@/lib/models';
+import { authErrorKey } from '@/lib/errors';
 import type { MessageKey } from '@/lib/translations';
 
 export default function ResetPassword() {
@@ -17,7 +18,7 @@ export default function ResetPassword() {
     if (!credentialsSchema.shape.password.safeParse(password).success) { setError('invalidPassword'); return; }
     setBusy(true);
     try { await updatePassword(password); setRecovery(false); }
-    catch { setError('networkError'); }
+    catch (error) { setError(authErrorKey(error, 'networkError')); }
     finally { setBusy(false); }
   }
   return <Screen><Stack.Screen options={{ title: t('resetPassword'), headerBackVisible: false }} />

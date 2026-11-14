@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { AppText, Button, Chips, Field, Notice, Screen, styles } from '@/components/ui';
 import { useI18n, usePreferences } from '@/store/preferences';
 import { credentialsSchema, type Credentials } from '@/lib/models';
-import { validationKey } from '@/lib/errors';
+import { authErrorKey, validationKey } from '@/lib/errors';
 import { authenticate, requestPasswordReset } from '@/services/auth';
 import type { MessageKey } from '@/lib/translations';
 import { colors, space } from '@/theme';
@@ -25,14 +25,14 @@ export default function LoginScreen() {
     try {
       const result = await authenticate(parsed.data, register);
       if (!result.session) { setFailed(false); setMessage('checkEmailBody'); }
-    } catch { setFailed(true); setMessage(register ? 'signUpFailed' : 'authFailed'); }
+    } catch (error) { setFailed(true); setMessage(authErrorKey(error, register ? 'signUpFailed' : 'authFailed')); }
   });
   async function reset() {
     const email = getValues('email').trim();
     if (!z.email().safeParse(email).success) { setError('email', { message: 'invalidEmail' }); return; }
     setResetting(true);
     try { await requestPasswordReset(email); setFailed(false); setMessage('resetSent'); }
-    catch { setFailed(true); setMessage('networkError'); }
+    catch (error) { setFailed(true); setMessage(authErrorKey(error, 'networkError')); }
     finally { setResetting(false); }
   }
   return <Screen><Stack.Screen options={{ title: t('appName'), headerBackVisible: false }} />
