@@ -72,7 +72,7 @@ These checks are evidence of source delivery, not evidence of a working native b
 - [ ] Produce an installable APK, app icon/splash assets and a short honest demo.
 - [ ] Record iOS validation separately; it is currently unverified.
 
-Use [`LOCAL_VERIFICATION.md`](LOCAL_VERIFICATION.md) for commands, acceptance cases and the evidence record. [`ANDROID_RELEASE.md`](ANDROID_RELEASE.md) covers the signed preview APK, exact source commit, checksum and GitHub Release handoff. The latest supplied audit still has 3 high findings; the owner's modified `.gitignore`, `expo-env.d.ts`, `package.json` and untracked lockfile require review before packaging.
+Use [`LOCAL_VERIFICATION.md`](LOCAL_VERIFICATION.md) for commands, acceptance cases and the evidence record. The owner chose a local Windows build: [`ANDROID_RELEASE.md`](ANDROID_RELEASE.md) covers Android Studio signing, certificate verification, source tracking, checksum and GitHub Release handoff. The latest supplied audit still has 3 high findings; the owner's modified `.gitignore`, `expo-env.d.ts`, `package.json` and untracked lockfile require review before packaging.
 
 ## Decisions and limits
 

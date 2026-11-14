@@ -193,15 +193,9 @@ Compare screenshots at the same device size, orientation, language and text scal
 
 ## 6. APK and performance evidence
 
-An Android **preview** APK is installable and runs without Metro. EAS configuration is provided; no EAS project, build or store submission has been created. If choosing EAS, link your own Expo project locally and configure both public Supabase variables for the `preview` environment in its dashboard. `.env` is ignored by Git and should not be assumed available to a remote build.
+The owner chose **local Windows packaging**. Follow [ANDROID_RELEASE.md](ANDROID_RELEASE.md) to synchronize the native project, use the working local Supabase environment, and build with Android Studio's **Generate Signed Bundle / APK** wizard. Verify that the APK's signing certificate matches the private release keystore, then test with Metro stopped. The template's release variant can otherwise retain debug signing. EAS cloud configuration remains optional; EAS `--local` is not a native Windows build route.
 
-```bash
-npx eas-cli@23.2.0 login
-npx eas-cli@23.2.0 init
-npx eas-cli@23.2.0 build --platform android --profile preview
-```
-
-Review EAS's current plan/build limits before starting a cloud build. Alternatively, use your local Android build tools and the release variant. An APK, screenshots, demo video, store icon/splash assets and signing/distribution evidence must be produced locally; none are supplied as fabricated artifacts.
+No signed standalone APK or GitHub release has been verified yet. Screenshots, demo video, store icon/splash assets and signing/distribution evidence remain pending; none are supplied as fabricated artifacts.
 
 On a physical Android device, use the preview/release build and the 360-post seed. Record device model, OS, build hash, dataset size, initial load, a long scroll, image loading, keyboard behavior and any measured frame/memory problems. A development build's apparent speed is not release-performance evidence. Record iOS independently rather than inferring it from Android.
 
