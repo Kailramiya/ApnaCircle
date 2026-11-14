@@ -49,3 +49,23 @@ export async function createPost(submission: PostSubmission) {
   assertCurrentAccount(account);
   return result;
 }
+
+export async function setPostState(postId: string, kind: 'liked' | 'saved', desired: boolean) {
+  z.uuid().parse(postId); z.boolean().parse(desired);
+  const account = captureAccount();
+  const table = kind === 'liked' ? 'likes' : 'saved_posts';
+  const request = desired
+    ? supabase.from(table).upsert({ post_id: postId, user_id: account.id }, { onConflict: 'post_id,user_id', ignoreDuplicates: true })
+    : supabase.from(table).delete().eq('post_id', postId).eq('user_id', account.id);
+  const { error } = await request;
+  assertCurrentAccount(account);
+  if (error) throw error;
+}
+export async function deletePost(postId: string) {
+  z.uuid().parse(postId);
+  const account = captureAccount();
+  const { error } = await supabase.from('posts').delete().eq('id', postId).eq('user_id', account.id);
+  assertCurrentAccount(account);
+  if (error) throw error;
+  // Media remains available for reviewed orphan maintenance, never race-prone cleanup.
+}

@@ -56,3 +56,9 @@ Source review: followed filters through query keys/RPC arguments, checked row pa
 Added validated post composition, native photo selection, bounded JPEG preparation and immutable uploads. Each submission freezes one UUID/text/photo snapshot. Retry reconciles the same row before uploading/inserting, and reconciles again after an insert error. No uncertain-response cleanup can delete a published image. Active tab switches retain the draft; explicit discard/back removal asks for confirmation. Session/account unmount clears in-memory drafts.
 
 Source review: traced cancellation, denial, upload failure, lost insert response, duplicate UUID and late-account results. Added runnable recovery checks. Permission dialogs, image bytes, navigation guards, database races and the rendered composer require local native testing. Abandoned uploads are retained for reviewed maintenance, as documented in `supabase/README.md`.
+
+## Social interactions and saved posts — source authored
+
+Added desired-state likes/saves, optimistic cache updates with field-scoped rollback, owner post/comment deletion, paginated conversations and private saved posts. Comment retries reuse their original ID/content; failed input remains visible. Repeated requests rely on database uniqueness, not button state alone.
+
+Source review: checked mutation ownership, late-account guards, targeted rollback and saved-record ordering. Added a runnable idempotent optimistic-state check. Live RLS, duplicate submissions, notification side effects and offline interaction checks remain pending locally.

@@ -35,3 +35,6 @@ export const postInput = z.object({
   category: z.enum(categories), locality: z.enum(localities),
 });
 export type PostInput = z.infer<typeof postInput>;
+export const commentSchema = z.object({ id: z.uuid(), post_id: z.uuid(), user_id: z.uuid(), content: z.string(), created_at: z.string(), author: authorSchema, ...cursorFields });
+export type Comment = z.infer<typeof commentSchema>;
+export const commentInput = z.string().trim().min(1, 'invalidComment').max(500, 'invalidComment');
