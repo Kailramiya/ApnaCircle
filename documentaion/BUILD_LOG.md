@@ -74,3 +74,9 @@ Source review: traced unique-key retries, private history policies and saved/app
 Added profile/avatar editing, a reused onboarding/profile form, saved/application shortcuts, own-post pagination, persisted language/locality preferences and confirmed logout. Added recipient-only activity lists, unread badge and narrow mark-read writes; like/comment events come only from the backend triggers. New-profile retries reconcile an already committed onboarding row.
 
 Source review: checked immutable avatar paths, targeted preference updates, translated labels and notification ownership. Native avatar selection, English/Hindi scaling, sign-out draft clearing and cross-user activity behavior remain pending locally. Push notifications are outside this MVP.
+
+## Integration review and local verification package — source authored
+
+Reviewed the full navigation, account, permission and retry paths. Follow-up fixes keep auth callbacks mounted while profile loading changes, bridge native secure randomness/SHA-256 for PKCE, handle lifecycle refresh failures, keep offline notices inside safe areas and expose composer locality selection.
+
+Added Node regression checks, transactional two-user RLS/duplicate-write/cursor checks, a separate opt-in Storage API ownership/immutability check, local development-build scripts and EAS profiles. Updated the README, actual service contracts, design/schema notes and progress record. Source review and Git whitespace checks are complete; every runtime, SQL, accessibility, screenshot and build check remains pending local execution. No service was provisioned, no dependency installed, and no app/test/migration/build executed here.

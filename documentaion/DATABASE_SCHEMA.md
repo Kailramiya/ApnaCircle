@@ -10,7 +10,7 @@
 - Use `auth.uid()` in RLS policies to identify the authenticated user.
 - Keep schema changes in versioned SQL migrations.
 
-The schema below is a logical design. Before implementation, verify column names and policy behavior against the actual migration files.
+The versioned migrations in `supabase/migrations/` are authoritative. They have been authored but not executed in this workspace. This reference describes their product intent; consult `LOCAL_VERIFICATION.md` for policy and cursor checks.
 
 ## 2. Tables
 
@@ -20,7 +20,7 @@ The schema below is a logical design. Before implementation, verify column names
 | id | UUID | Primary key; references `auth.users(id)` |
 | full_name | TEXT | Display name |
 | username | TEXT | Unique username |
-| avatar_url | TEXT | Nullable |
+| avatar_path | TEXT | Nullable owner-prefixed Storage path; service resolves display URL |
 | bio | TEXT | Nullable |
 | city | TEXT | User's selected city |
 | locality | TEXT | Nullable |
@@ -40,6 +40,8 @@ The schema below is a logical design. Before implementation, verify column names
 | locality | TEXT | Nullable |
 | created_at | TIMESTAMPTZ | Default current timestamp |
 | updated_at | TIMESTAMPTZ | Default current timestamp |
+
+The authored app supports Jaipur only and requires one of its three demo localities. `posts.is_demo` is a trusted boolean that authenticated clients cannot set or update. Posts are inserted once by UUID; clients can edit only description/category and delete their own records.
 
 ### likes
 | Column | Suggested type | Notes |

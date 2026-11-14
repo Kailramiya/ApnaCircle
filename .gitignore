@@ -20,3 +20,6 @@ skills-lock.json
 *.p8
 *.p12
 *.mobileprovision
+*.apk
+*.aab
+*.ipa

@@ -60,7 +60,9 @@ Contains Supabase queries and mutations. It is responsible for data access, quer
 ### Backend
 Supabase provides authentication, PostgreSQL persistence, object storage, and RLS enforcement.
 
-## 3. Suggested repository structure
+## 3. Repository structure
+
+The authored new-project implementation uses `src/app` for routes, `src/screens` for screen composition, `src/components` for shared UI, `src/hooks` for server-state hooks, `src/services` for data access, and `src/lib` for models/validation/translations/recovery. `src/providers.tsx` owns session/query lifecycle; `src/store/preferences.ts` owns the language preference. The conceptual tree below preserves the original route map; its root `app/` now lives at `src/app/`, and the signed-in tabs are nested under `(app)/(tabs)`. See the README for the actual compact file layout; no empty feature directories were created.
 
 ```text
 apnacircle/

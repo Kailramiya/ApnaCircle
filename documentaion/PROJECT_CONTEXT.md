@@ -2,7 +2,7 @@
 
 ## Product identity
 - **Name:** ApnaCircle
-- **Tagline:** Your Community. Your Opportunities. Your Circle.
+- **Tagline:** Your neighbourhood. Your people.
 - **Category:** Hyperlocal community and opportunities mobile application
 - **Platforms:** Android and iOS; prioritize an installable Android release and record iOS verification separately.
 - **Product inspiration:** The broader problem space of making local content, services, and opportunities more accessible to people across India. ApnaCircle is an independent product and must have its own branding and implementation.
@@ -10,7 +10,7 @@
 ## Vision
 Help people discover useful information and opportunities in their local communities through a simple, accessible mobile experience.
 
-The first release focuses on local community updates and nearby jobs. Use realistic, clearly labeled development content for one city and its localities; choose and record that city during setup. Demonstrate useful location filtering before expanding coverage.
+The first release focuses on local community updates and nearby jobs in Jaipur: Mansarovar, Vaishali Nagar and Malviya Nagar. The seed contains 360 explicitly fictional posts and 24 jobs. Demonstrate useful location filtering before expanding coverage.
 
 ## Target users
 People in Tier 2 and Tier 3 Indian cities who want to discover:
@@ -55,13 +55,13 @@ Bottom tabs: **Home · Jobs · Create · Saved · Profile**. Search lives in Hom
 ## Technology direction
 - React Native + Expo + TypeScript
 - Expo Router
-- NativeWind (if compatible with the chosen Expo setup)
+- Native React Native styles and shared design tokens
 - Zustand for client-side state
 - TanStack Query for server state
 - Supabase Auth, PostgreSQL, Storage, and Row Level Security
 - React Hook Form and Zod
 - Expo Image Picker
-- AsyncStorage where appropriate
+- SecureStore for sessions; AsyncStorage for the device language preference
 
 ## Product success criteria
 A reviewer should be able to:

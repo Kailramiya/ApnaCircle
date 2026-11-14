@@ -4,10 +4,10 @@ Create a dedicated Supabase development project. In its SQL editor run the files
 
 1. Enable email/password Auth. Keep email confirmation enabled for a public demo.
 2. Configure email delivery and password-reset templates for your own project.
-3. Add `apnacircle://auth/callback` to Auth's redirect allowlist. A development build is recommended for testing the custom scheme; Expo Go has a different deep-link address.
+3. Add `apnacircle://auth/callback` and `apnacircle://auth/callback?mode=recovery` to Auth's redirect allowlist. A development build is recommended for testing the custom scheme; Expo Go has a different deep-link address. Open PKCE links on the installation that requested them.
 4. Copy the project URL and publishable/anon key into the mobile `.env` file. The service-role/secret key must never enter the app.
 5. Create two test accounts through the app. Seed authors cannot log in: no passwords or identities are provisioned.
-6. Run the SQL regression checks and device checklist supplied with the final validation increment.
+6. Run `tests/rls.sql` as the database owner in a development project, then follow [`LOCAL_VERIFICATION.md`](../documentaion/LOCAL_VERIFICATION.md). Auth's minimum password length should be 8, matching client validation.
 
 The seed creates 6 explicitly fictional authors, 360 posts and 24 jobs. It is repeatable by fixed primary keys, including exact timestamp ties. It does not erase existing user data.
 

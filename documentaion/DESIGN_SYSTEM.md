@@ -15,23 +15,22 @@ Do not copy another company's branding or screens. Use the design references onl
 | Background | `#F8FAFC` |
 | Surface | `#FFFFFF` |
 | Main text | `#0F172A` |
-| Secondary text | `#64748B` |
+| Secondary text | `#475569` |
 | Border | `#E2E8F0` |
-| Success | `#16A34A` |
-| Error | `#DC2626` |
+| Success | `#166534` |
+| Error | `#B91C1C` |
 
 Define tokens centrally rather than repeating raw values across components.
 
 ## 3. Typography
-- Inter for English.
-- Noto Sans Devanagari for Hindi.
+- Native system fonts for both English and Hindi; avoid a font-download startup dependency.
 - Screen heading: approximately 24 px.
 - Section heading: approximately 18 px.
-- Card title: approximately 16 px.
-- Body: approximately 14 px.
-- Caption: approximately 12 px.
+- Card title: approximately 18 px.
+- Body: approximately 16 px.
+- Caption: approximately 14 px.
 
-Check font licensing and configure bundled fonts correctly before relying on them.
+The authored tokens live in `src/theme.ts`. Darker secondary/success/error text improves contrast on the light surfaces. A future custom font must include licensed Hindi coverage and native text-scaling checks.
 
 Treat these sizes as defaults, not fixed limits: respect system text scaling, allow Hindi headings/buttons to wrap where needed, and avoid fixed-height text containers that clip translated content.
 

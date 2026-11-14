@@ -13,6 +13,7 @@
     },
     "plugins": [
       "expo-router",
+      "expo-dev-client",
       "expo-secure-store",
       "expo-localization",
       ["expo-image-picker", {

@@ -1,108 +1,77 @@
-# ApnaCircle — Progress and Session Memory
-
-> This file is the source of truth for the current implementation status. Update it after every meaningful coding session. Do not mark a feature complete based only on generated code; verify it.
+# ApnaCircle — Progress and session memory
 
 ## Current status
-- [x] Workspace inspected: nine documentation files only; no app source or package configuration found
-- [x] Internship-focused documentation revision completed (2026-11-14)
-- [ ] Expo project configured
-- [ ] TypeScript configured
-- [ ] Expo Router configured
-- [ ] Home/Jobs/Create/Saved/Profile tabs and detail/history stack routes implemented
-- [ ] Design tokens created
-- [ ] Reusable components implemented
-- [ ] Supabase client configured
-- [ ] Database migrations created
-- [ ] RLS policies implemented and tested
-- [ ] Authentication implemented
-- [ ] Session restoration after restart/backgrounding verified
-- [ ] Account-scoped caching and logout/account-switch isolation verified
-- [ ] Onboarding implemented
-- [ ] Home feed implemented
-- [ ] Feed pagination implemented
-- [ ] Equal-timestamp cursor pagination verified
-- [ ] Pull-to-refresh implemented
-- [ ] Post/job search and location filters implemented
-- [ ] Post creation implemented
-- [ ] Image upload implemented
-- [ ] Failed-publish input preservation and duplicate-safe upload recovery verified
-- [ ] Likes implemented
-- [ ] Comments implemented
-- [ ] Saved posts implemented
-- [ ] Job listings implemented
-- [ ] Job details implemented
-- [ ] Job applications implemented
-- [ ] Application history and persisted applied state verified
-- [ ] Saved jobs implemented
-- [ ] Profile implemented
-- [ ] In-app notifications implemented
-- [ ] Hindi localization implemented
-- [ ] English/Hindi validation, errors, empty states, accessible labels, and locale formatting verified
-- [ ] Native keyboard/back/permissions and small/large text layouts verified
-- [ ] Slow-network retry behavior and loaded-content preservation verified
-- [ ] Critical automated checks in the roadmap pass
-- [ ] Demo city/localities and clearly labeled seed content recorded
-- [ ] Release-build scrolling checked with several hundred posts on a physical Android device
-- [ ] Android testing completed
-- [ ] iOS testing completed
-- [ ] Installable Android release and short demo available
-- [ ] README completed
 
-## Current development phase
-Planning revised; application implementation has not started. The local `apnacircle/` directory contains documentation only and is not a Git repository. Phase 0 inspection is complete, but environment/package compatibility and demo-city/device selection remain pending before Phase 1.
+The MVP source is authored and pushed to `Kailramiya/ApnaCircle` in real feature increments. The repository now contains an Expo SDK 57 app, Supabase migrations/seed, regression checks and local build instructions. This is **not a runtime-verified release**.
 
-## Completed features
-Add only features that have been implemented and tested.
-- None recorded yet.
+The owner explicitly requested that dependencies, application code and tests not be installed or run in the authoring workspace. Each increment received source review and Git whitespace checks. Do not turn the pending checks below into passes without actual output/device evidence.
 
-## In progress
-- None recorded yet.
+## Source authored
 
-## Pending work
-- Confirm Expo and package versions.
-- Record the demonstration city/localities and available test devices.
-- Set up the foundation.
-- Implement core features in roadmap order: feed/social, saved content, complete jobs/applications, profile, and English/Hindi support.
-- Implement and record the roadmap's automated/native checks, then prepare an Android release and demo.
-- Add optional like/comment notifications only after the core flows are stable. iOS remains unverified until tested.
+| Area | Source coverage | Execution status |
+|---|---|---|
+| Foundation | Strict TypeScript, SDK-compatible manifest, native tabs/stacks, theme, reusable controls | Pending local install/typecheck/lint |
+| Backend | Nine tables, constraints, column grants, RLS, immutable public media, read-model RPCs | Migrations not executed |
+| Authentication | Registration/login, PKCE callback/recovery, SecureStore sessions, lifecycle refresh | Native/email checks pending |
+| Onboarding/profile | Name/username/bio, avatars, Jaipur locality and English/Hindi preferences | Device checks pending |
+| Community | Feed, search, filters, composite-cursor pagination, refresh, post details | Backend/device checks pending |
+| Composer | Text/photo validation, stable submission UUID, retry reconciliation, retained drafts | Failure/device checks pending |
+| Social/saved | Desired-state likes/saves, scoped optimistic rollback, comments, owner deletion | Two-user/runtime checks pending |
+| Jobs | Listings/detail, filters, private saves, unique applications and history | Two-user/runtime checks pending |
+| Activity | Trusted like/comment triggers, recipient-only feed, unread count and mark-read | Backend/device checks pending |
+| Localization/UI | English/Hindi messages, locale formatting, scalable text and control labels | Screenshots/accessibility pending |
+| Tests | Node logic checks, transactional RLS/cursor checks, opt-in Storage API integration check | Authored, not run |
+| Release | Local development-client scripts and EAS development/preview/production profiles | No build or store submission |
 
-## Known bugs
-- No application exists to test yet; this is not evidence of a bug-free implementation. Add reproducible details when bugs are discovered.
+## Verified in this workspace
 
-## Architecture decisions
-Record decisions with date, reason, and impact.
-- Use Expo + React Native + TypeScript.
-- Use Expo Router for navigation.
-- Use Zustand for client-owned state.
-- Use TanStack Query for server state.
-- Use Supabase for Auth, PostgreSQL, and Storage.
-- Use RLS as the authorization boundary.
-- 2026-11-14: Focus the first release on one demonstration city's community updates and nearby jobs, with clearly labeled seed content.
-- 2026-11-14: Use Home/Jobs/Create/Saved/Profile tabs; keep search in Home/Jobs and notifications behind a header entry to a stack screen.
-- 2026-11-14: Make saved content, applications/history, English/Hindi, native reliability, and an installable Android release core requirements.
-- 2026-11-14: Scope personalized queries by account, use `(created_at, id)` cursors, and preserve active composer input with one post UUID across retries.
-- 2026-11-14: Restrict initial notifications to trusted like/comment events after core flows; defer replies, application updates, push, and durable offline write queues.
+- [x] Existing product documents read and revised.
+- [x] Dependency versions/source APIs inspected against upstream SDK/package metadata.
+- [x] Feature source and security/failure paths reviewed.
+- [x] Git whitespace checks completed for delivered increments.
+- [x] Feature commits pushed with `Kailramiya <amankundu369@gmail.com>` and actual commit dates.
 
-## Environment setup
-Maintain variable names only. Never commit real secrets.
-Expected variables may include:
+These checks are evidence of source delivery, not evidence of a working native build.
+
+## Pending owner-run validation
+
+- [ ] Install dependencies, resolve compatibility, generate and commit `package-lock.json`.
+- [ ] Pass TypeScript, ESLint, Node regression checks and Expo Doctor.
+- [ ] Apply migrations and demo seed in a dedicated Supabase development project.
+- [ ] Pass SQL RLS/duplicate-write/equal-timestamp checks and Storage API integration checks.
+- [ ] Test confirmation/reset links on the requesting app installation.
+- [ ] Test session restoration, background refresh and account isolation during slow requests.
+- [ ] Test picker permission/cancellation, keyboard, Android back and draft preservation.
+- [ ] Test post/image/comment/application retry behavior against the live backend.
+- [ ] Compare English/Hindi screenshots at small/large widths and large system text.
+- [ ] Test TalkBack and VoiceOver independently.
+- [ ] Record release scrolling on physical Android with 360 seeded posts.
+- [ ] Produce an installable APK, app icon/splash assets and a short honest demo.
+- [ ] Record iOS validation separately; it is currently unverified.
+
+Use [`LOCAL_VERIFICATION.md`](LOCAL_VERIFICATION.md) for commands, acceptance cases and the evidence record.
+
+## Decisions and limits
+
+- SDK 57 / React Native 0.86.3; new-project routes use `src/app`.
+- Jaipur demo: Mansarovar, Vaishali Nagar and Malviya Nagar; seed includes 6 fictional authors, 360 posts and 24 jobs.
+- React Native styles/system fonts keep native text scaling and Hindi support without an extra styling/font dependency.
+- TanStack Query owns remote data. Zustand persists only the device language preference.
+- Sessions use chunked SecureStore entries; native randomness and SHA-256 bridge the PKCE calls required by Supabase.
+- Every personalized cache key includes the account ID; account epochs reject late work.
+- Posts freeze their UUID/text/photo on submission. Uncertain outcomes retain media; reviewed maintenance handles abandoned uploads.
+- Image buckets are intentionally public. Never treat an image URL as private.
+- Job applications are demo records; no employer receives them. Status remains `submitted`.
+- Activity source exists but is not validated as stable. Push, replies, employer workflows, durable offline queues and automated media cleanup remain outside the MVP.
+- Store signing, real Supabase/Expo configuration, generated native folders and build artifacts are not committed.
+
+## Environment variables
+
 - `EXPO_PUBLIC_SUPABASE_URL`
-- `EXPO_PUBLIC_SUPABASE_ANON_KEY`
+- `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (publishable or legacy anon key)
 
-Do not add service-role credentials to the mobile application.
+Never use a service-role/secret key in the mobile app. Test-account passwords belong only in the ignored `.env.test.local` file for the explicit Storage integration check.
 
-## Last session summary
-2026-11-14: Reviewed and revised all nine documentation files for the agreed internship-focused scope, navigation, mobile behavior, failure recovery, and release verification. No app code, database migrations, builds, or application tests were created or run. All implementation checkboxes remain unchecked.
+## Next session
 
-## Next recommended task
-Finish Phase 0 environment/compatibility checks and record the demo city/test devices, then implement Phase 1 of `DEVELOPMENT_ROADMAP.md`. Use the existing `documentaion/` directory and preserve the revised core scope.
-
-## Instructions for the next AI session
-1. Read `PROJECT_CONTEXT.md`.
-2. Read `ARCHITECTURE.md`.
-3. Read `CODING_RULES.md`.
-4. Read this `PROGRESS.md`.
-5. Inspect the actual source code and package configuration.
-6. Compare the implementation with the roadmap.
-7. Continue from the real repository state; do not assume unchecked items are complete.
-8. Update this file and relevant documentation before ending the session.
+Continue from the current source and Git history. Do not scaffold another app or rewrite the product plan. If the owner supplies local errors, reproduce/trace the relevant path, fix it in a focused commit and update the evidence record. The owner's no-install/no-execution constraint remains in force until changed.

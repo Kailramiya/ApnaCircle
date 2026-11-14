@@ -1,180 +1,90 @@
-# ApnaCircle — Service and API Contracts
+# ApnaCircle — Service and API contracts
 
-## 1. Purpose
-This document describes the intended client-facing service layer. These are application service contracts, not a promise that the functions already exist. Update this document to match the actual implementation.
+These contracts match the authored source in `src/services`. They remain unverified against a running backend. Migrations are the source of truth for SQL permissions and column names; Zod schemas in `src/lib/models.ts` validate read results and form input.
 
-## 2. Service organization
-Suggested files:
-- `auth.service.ts`
-- `posts.service.ts`
-- `comments.service.ts`
-- `jobs.service.ts`
-- `profile.service.ts`
-- `notifications.service.ts`
+## Authentication
 
-Screens and presentational components should call feature hooks. Hooks should call service functions. Service functions communicate with Supabase.
+`auth.ts` exports:
 
-## 3. Authentication service
-Suggested functions:
+- `authenticate(credentials, register)` — sign in or register an email/password account. Profile creation is a separate onboarding step. Registration may return no session until email confirmation.
+- `requestPasswordReset(email)` — request a recovery link to the app's callback.
+- `exchangeAuthCode(code)` — exchange a PKCE code from `apnacircle://auth/callback`.
+- `updatePassword(password)` — update the authenticated recovery session's password.
+- `signOut()` — sign out this device session.
+
+`src/providers.tsx` owns the session listener, restoration and foreground/background refresh. `src/lib/supabase.ts` configures encrypted session storage and request cancellation/timeouts. No password is persisted by the app. PKCE verifiers and session data use SecureStore; callbacks must return to the requesting installation.
+
+## Read contracts
+
+All growing lists use pages of 20 rows and a cursor `{ time: string, id: string }`. PostgreSQL timestamp strings keep their full precision. Returned rows contain `sort_at` and `sort_id`; use these fields rather than reconstructing timestamps with JavaScript `Date`.
+
+| Service | Signature | SQL read model |
+|---|---|---|
+| Posts | `getPosts(filters, cursor, signal)` | `list_posts` |
+| Comments | `getComments(postId, cursor, signal)` | `list_comments` |
+| Jobs | `getJobs(filters, cursor, signal)` | `list_jobs` |
+| Activity | `getNotifications(cursor, signal)` | `list_notifications` |
+| Profile | `getProfile(userId, signal)` | Own profile query |
+| Unread activity | `getUnreadCount(signal)` | Recipient-only count |
+
+Post filters: `search`, `category`, `locality`, `author`, `saved`, `postId`. Job filters: `search`, `type`, `locality`, `saved`, `applied`, `jobId`. A detail query supplies its entity ID. Saved/application history uses the same read function with the relevant flag.
+
+RPCs execute as the caller and retain RLS. Search is a bounded, case-insensitive literal substring; it is not ranked full-text search. Standard lists sort by `(created_at DESC, id DESC)`. Saved lists use saved-record timestamps/IDs; application history uses application timestamps/IDs. The next page uses a strict tuple comparison. Query keys include the viewer and all filters; merged rows are deduplicated by entity ID.
+
+## Post submission and media
+
+`createPost(submission)` receives:
+
 ```ts
-signUp(input: { email: string; password: string; fullName: string })
-signIn(input: { email: string; password: string })
-signOut()
-getCurrentSession()
+type PostSubmission = {
+  id: string;       // UUID generated once for this submission
+  ownerId: string;  // Must equal the active account; RLS is authoritative
+  values: {
+    description: string;
+    category: 'general' | 'help' | 'events' | 'recommendations';
+    locality: 'Mansarovar' | 'Vaishali Nagar' | 'Malviya Nagar';
+  };
+  photo: { uri: string; width: number; height: number } | null;
+};
 ```
 
-Responsibilities:
-- Call Supabase Auth.
-- Return typed results.
-- Normalize and surface errors.
-- Keep session persistence configured in the Supabase client.
-- Manage foreground/background session refresh and listener cleanup using the supported React Native setup.
-- On logout/account change, cancel old queries, remove outgoing account cache/drafts, and prevent late results from updating the next account's UI.
-- Never store plaintext passwords.
+The composer freezes these values on its first attempt. One attempt runs at a time. Retry first looks up the same owned post ID. If absent, it uploads the same immutable image path and inserts the row. An insert error triggers another lookup; a confirmed existing row is success. No retry overwrites an existing post or invents another UUID.
 
-## 4. Posts service
-Suggested contracts:
-```ts
-getPosts(input: {
-  city?: string;
-  locality?: string;
-  category?: string;
-  search?: string;
-  cursor?: string;
-  limit: number;
-})
+An absent lookup after a timeout is **not** proof that a delayed write cannot commit. The app therefore preserves its draft and media and asks the user to retry. Only confirmed success clears the composer. Tab changes keep the in-memory draft; discard/back removal asks for confirmation; logout clears it. No durable draft queue is promised.
 
-getPostById(postId: string)
+`media.ts` exports `choosePhoto(maxDimension?)`, `uploadPhoto(bucket, path, photo)` and `mediaUrl(bucket, path)`. Photos are prepared as JPEGs, bounded to 1600 pixels for posts/640 for avatars and 10 MB. Paths are `<owner UUID>/<submission UUID>/image.jpg`. Objects are immutable; a retry can confirm an existing upload. `posts.image_path` and `profiles.avatar_path` store paths, not URLs.
 
-createPost(input: {
-  postId: string;
-  description: string;
-  category: string;
-  city: string;
-  locality?: string;
-  imageUri?: string;
-})
+Both image buckets are public by design. Retained Storage objects provide the inventory for manual orphan review. Never delete an image after an uncertain write or delete Storage metadata directly through SQL. See `supabase/README.md` for reviewed maintenance limits.
 
-deletePost(postId: string)
+## Social mutations
 
-setPostLiked(input: {
-  postId: string;
-  liked: boolean;
-})
+- `setPostState(postId, 'liked' | 'saved', desired)` safely sets a desired state with an insert-on-conflict-do-nothing or owner-scoped delete. It implements the originally proposed `setPostLiked` and `setPostSaved` operations.
+- `deletePost(postId)` deletes only the current user's post; cascading comments/social records follow SQL constraints. Media remains for reviewed maintenance.
+- `addComment(id, postId, content)` preserves a client UUID and text across uncertain retries and reconciles the existing owned comment.
+- `deleteComment(id)` deletes only the author's comment.
 
-setPostSaved(input: {
-  postId: string;
-  saved: boolean;
-})
+Likes/saves optimistically update relevant caches and roll back only their own fields on failure. Actions on other posts or other fields survive that rollback. Database unique constraints enforce one like/save per user/post.
 
-getSavedPosts(input: { cursor?: string; limit: number })
-```
+## Jobs and applications
 
-Implementation notes:
-- Feed pagination uses `created_at DESC, id DESC`. The cursor encodes both values from the last item, retaining database timestamp precision; the next page uses a strict tuple comparison. Validate cursors and bound page size.
-- Apply the same two-field ordering/cursor contract to newest-first jobs, comments, saved content, application history, user posts, and notifications. Saved content uses the saved record's timestamp/ID, not the underlying post/job's. Reset pages when filters or the account change; deduplicate merged results by record ID.
-- Ensure the database has matching indexes.
-- RLS must enforce ownership.
-- Avoid relying on a client-supplied `user_id` for authorization.
-- `setPostLiked` and `setPostSaved` set a desired state. Repeating an insert for an existing unique pair or deleting an absent pair is safe. Do not implement retryable operations as blind toggles.
+- `setJobSaved(jobId, saved)` is a desired-state mutation with uniqueness and owner RLS.
+- `applyToJob(jobId)` inserts at most one application for the current user/job. It reads the existing application after insertion, including after an ambiguous response. It cannot advance status.
 
-### Publish and upload recovery
-- Generate `postId` as a UUID once per new submission; reuse it for all retries of that submission. Derive ownership from the authenticated session and enforce it through RLS.
-- Store an optional image under an owner/post-specific path and retain that path while publishing. The post stores `image_path`; services resolve display URLs according to bucket visibility.
-- Keep one publish attempt in flight. Clear the active composer only after confirming that this post exists for the current user; otherwise preserve text, category, and image selection for retry.
-- If the response is lost or times out, look up the same post ID before retrying. The primary key prevents a second row; on a conflict, reconcile the existing owned post rather than overwriting it or generating another ID.
-- Delete an uploaded object only after a definite insertion failure/confirmed absence with no in-flight write. If the outcome is still uncertain, keep the object and retry reconciliation; never delete a possibly committed post's image.
-- Track unresolved object paths and cleanup failures in development diagnostics for retry/maintenance. An interrupted app may require maintenance cleanup; the MVP does not promise a durable recovery queue or atomic Storage/database writes.
+Applications return `id`, `status: 'submitted'` and `created_at`. The UI labels every application as a portfolio demo. There is no employer delivery, employer dashboard or review-status endpoint.
 
-## 5. Comments service
-Suggested contracts:
-```ts
-getComments(input: { postId: string; cursor?: string; limit: number })
-createComment(input: { postId: string; content: string })
-deleteComment(commentId: string)
-```
+## Profiles and preferences
 
-Validate content and enforce ownership in the database.
+- `saveProfile(input, isNew, avatarPath?)` validates name, username, bio, locality and language. A failed new-profile insert reconciles an existing own row. Updates target the current account only.
+- `savePreferences(locality, language)` writes only those preference fields, avoiding unrelated profile overwrites.
 
-## 6. Jobs service
-Suggested contracts:
-```ts
-getJobs(input: {
-  city?: string;
-  locality?: string;
-  search?: string;
-  employmentType?: string;
-  cursor?: string;
-  limit: number;
-})
+Usernames contain 3–24 lowercase ASCII letters, digits or underscores. Names contain 2–60 characters; bios allow 180. The server also validates these limits. Avatar paths must belong to the profile owner.
 
-getJobById(jobId: string)
-applyForJob(jobId: string)
-getMyApplications(input: { cursor?: string; limit: number })
-setJobSaved(input: { jobId: string; saved: boolean })
-getSavedJobs(input: { cursor?: string; limit: number })
-```
+## Activity
 
-Enforce one application per user/job with a unique constraint. `applyForJob` derives the user from the session and returns the existing application on a duplicate retry without changing its status. `setJobSaved` sets the requested state safely on repeated calls. Applications start as `submitted`; no employer delivery/review or status-update API is part of the demo MVP.
+`markRead(id)` writes only `is_read: true` for the recipient. Clients cannot create or rewrite events. Database triggers derive like/comment recipients from post ownership, exclude self-actions and deduplicate repeated like events. Comment deletion removes its notification. Push delivery and application-status events are outside this version.
 
-## 7. Profile service
-Suggested contracts:
-```ts
-getProfile(userId: string)
-updateProfile(input: {
-  fullName?: string;
-  username?: string;
-  bio?: string;
-  city?: string;
-  locality?: string;
-  preferredLanguage?: string;
-  avatarUri?: string;
-})
-getUserPosts(input: { userId: string; cursor?: string; limit: number })
-```
+## Account and failure boundaries
 
-A user must only update their own profile.
+Each personalized query key starts with the user ID. Account changes cancel outgoing queries, clear caches, remount signed-in navigation and invalidate an account epoch. Async work checks that epoch before another write or UI/cache update. Mutation retries are explicit; offline writes are not queued.
 
-## 8. Notifications service
-Suggested contracts:
-```ts
-getNotifications(input: { cursor?: string; limit: number })
-markNotificationRead(notificationId: string)
-markAllNotificationsRead()
-```
-
-A user can only access and update notifications addressed to them.
-
-This service is a secondary feature after core release flows are stable. MVP notification types are `like` and `comment`, generated by trusted backend logic after successful interactions and excluding self-actions. Mark-read operations may change only read state. Reply and application-update notifications are deferred until their data models and authorized workflows exist.
-
-## 9. Query key conventions
-Use stable, structured keys. Here `userId` is the authenticated viewer and `profileId` is the profile being viewed:
-```ts
-['posts', userId, { city, locality, category, search }]
-['post', userId, postId]
-['comments', userId, postId]
-['jobs', userId, { city, locality, search, employmentType }]
-['job', userId, jobId]
-['profile', userId, profileId]
-['user-posts', userId, profileId]
-['notifications', userId]
-['saved-posts', userId]
-['saved-jobs', userId]
-['applications', userId]
-```
-
-Keep query keys consistent and avoid putting non-serializable objects in them. Disable authenticated queries until the user ID is available. Feed/job data includes account-specific liked, saved, or applied state and must not be reused across accounts. Logout must cancel old requests, remove outgoing account data (including any persisted cache), and prevent late completions from repopulating it. Cache keys do not replace RLS.
-
-## 10. Mutation cache behavior
-After a successful mutation:
-- Creating a post: refresh or update relevant feed queries.
-- Liking a post: update/invalidate the post/feed data.
-- Saving a post/job: update/invalidate its detail/list state and the account's Saved tab queries.
-- Adding a comment: update/invalidate comments and comment count.
-- Applying for a job: update application state and relevant job detail.
-- Updating a profile: update profile queries and visible author data as needed.
-
-If using optimistic updates, implement rollback on failure. Scope updates to the initiating account and ignore stale completions after logout/account changes. Preserve existing list content during refresh; a failed refresh should show retry feedback without replacing usable content with a full-screen loader.
-
-## 11. Error handling contract
-Service functions should return typed data or throw/return a normalized error consistently. Choose one convention and apply it across the app. User-facing messages should be clear and should not expose internal secrets or SQL details.
+User-visible errors and validation keys resolve through the English/Hindi dictionary. Low-level SQL/auth details do not appear in UI messages. Source checks, SQL policy checks, native callbacks, actual image I/O and concurrent retries still require the local procedure in `LOCAL_VERIFICATION.md`.
