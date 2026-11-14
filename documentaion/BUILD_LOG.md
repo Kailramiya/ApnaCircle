@@ -38,3 +38,9 @@ Source review: verified package versions against upstream package metadata and E
 Added versioned SQL for all nine product tables, explicit column grants, ownership RLS, immutable public media, trusted activity triggers, bounded read-model RPCs and stable composite cursors. Seed: 6 fictional authors, 360 posts and 24 jobs, including tied microsecond timestamps. Actual profile media column is `avatar_path`; services resolve its URL.
 
 Source review: traced each table's read/write actor, private saved/application scope, notification field permissions, and stable saved-list cursors. Migration execution and two-user RLS verification are pending locally. No live Supabase project was modified.
+
+## Authentication and onboarding — source authored
+
+Added email registration/login, confirmation and password recovery, protected routes, encrypted chunked session persistence, lifecycle refresh, network/focus integration, account cache isolation and bilingual profile onboarding. Outgoing queries are cancelled and cache cleared on account change; mutations check the originating account before updating UI state. The reset callback uses a PKCE code and the configured custom scheme.
+
+Source review: inspected session initialization races, partial storage writes, auth error states, onboarding validation, column-grant-compatible profile writes and public-only environment configuration. Email delivery, native deep links, restart/background sessions, account switching and SecureStore behavior remain pending local checks.
