@@ -9,7 +9,7 @@ import { isConfigured } from '@/lib/supabase';
 
 export function ErrorBoundary({ retry }: ErrorBoundaryProps) {
   const { t } = useI18n();
-  return <Screen><EmptyState title={t('errorTitle')} body={t('networkError')}><Button title={t('retry')} onPress={() => { void retry(); }} /></EmptyState></Screen>;
+  return <Screen topInset><EmptyState title={t('errorTitle')} body={t('networkError')}><Button title={t('retry')} onPress={() => { void retry(); }} /></EmptyState></Screen>;
 }
 function Navigation() {
   const { t } = useI18n();
@@ -25,6 +25,6 @@ function Navigation() {
 }
 export default function RootLayout() {
   const { t } = useI18n();
-  if (!isConfigured) return <Screen><EmptyState title={t('setupTitle')} body={t('setupBody')} /></Screen>;
+  if (!isConfigured) return <Screen topInset><EmptyState title={t('setupTitle')} body={t('setupBody')} /></Screen>;
   return <Providers><StatusBar style="dark" /><Navigation /></Providers>;
 }

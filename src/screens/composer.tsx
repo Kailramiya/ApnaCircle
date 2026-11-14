@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, BackHandler, View } from 'react-native';
 import { Controller, useForm } from 'react-hook-form';
 import { useFocusEffect, useRouter } from 'expo-router';
@@ -10,7 +10,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { AppText, Button, Chips, Field, Notice, Screen, styles } from '@/components/ui';
 import { useI18n } from '@/store/preferences';
 import { useAuth } from '@/providers';
-import { categories, postInput, type PostInput } from '@/lib/models';
+import { categories, localities, localityKeys, postInput, type PostInput } from '@/lib/models';
 import { choosePhoto, type PreparedPhoto } from '@/services/media';
 import { createPost, type PostSubmission } from '@/services/posts';
 import { captureAccount, isCurrentAccount } from '@/lib/account';
@@ -35,6 +35,7 @@ export default function ComposerScreen() {
   });
   const description = watch('description');
   const dirty = Boolean(description.trim() || photo || locked);
+  useEffect(() => { if (!dirty && profile) setValue('locality', profile.locality); }, [dirty, profile, setValue]);
   function clearDraft() { submission.current = null; setPhoto(null); setLocked(false); reset(); setMessage(undefined); }
   const confirmLeave = useCallback((leave: () => void) => {
     if (inFlight.current) return;
@@ -47,14 +48,14 @@ export default function ComposerScreen() {
   useFocusEffect(useCallback(() => {
     const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
       if (!dirty) return false;
-      confirmLeave(() => router.replace('/(app)/(tabs)/home'));
+      confirmLeave(() => router.navigate('/(app)/(tabs)/home'));
       return true;
     });
     return () => subscription.remove();
   }, [dirty, confirmLeave, router]));
   async function pick() {
     const account = captureAccount();
-    setPicking(true);
+    setPicking(true); setMessage(undefined);
     try { const next = await choosePhoto(); if (next && isCurrentAccount(account)) setPhoto(next); }
     catch (error) { if (isCurrentAccount(account)) setMessage(errorKey(error)); }
     finally { if (isCurrentAccount(account)) setPicking(false); }
@@ -81,6 +82,7 @@ export default function ComposerScreen() {
     <AppText variant="small">{t('characterCount', { count: number(description.length), max: number(2000) })}</AppText>
     <AppText variant="heading">{t('category')}</AppText>
     {locked ? <AppText>{t(watch('category'))}</AppText> : <Chips value={watch('category')} onChange={(value) => setValue('category', value)} options={categories.map((value) => ({ value, label: t(value) }))} />
+    <AppText variant="heading">{t('locality')}</AppText><Chips value={watch('locality')} disabled={locked} onChange={(value) => setValue('locality', value)} options={localities.map((value) => ({ value, label: t(localityKeys[value]) }))} />
     {photo ? <View style={{ gap: space.sm }}><Image source={photo.uri} style={{ width: '100%', aspectRatio: photo.width / photo.height, maxHeight: 360, borderRadius: radius.md }} contentFit="contain" accessibilityLabel={t('photo')} /><Button title={t('removePhoto')} variant="ghost" disabled={locked} onPress={() => setPhoto(null)} /></View> : null}
     <Button title={t(photo ? 'changePhoto' : 'addPhoto')} variant="secondary" loading={picking} disabled={locked || isSubmitting} onPress={() => { void pick(); }} />
     {locked ? <Notice message={t('draftLocked')} /> : null}{message ? <Notice message={t(message)} error /> : null}

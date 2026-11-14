@@ -17,7 +17,7 @@ export function PagedList<T extends { id: string }>({ query, renderItem, header,
     initialNumToRender={6} maxToRenderPerBatch={6} windowSize={7}
     refreshing={query.isRefetching && !query.isFetchingNextPage} onRefresh={() => { void query.refetch(); }}
     onEndReachedThreshold={0.4} onEndReached={() => { if (query.hasNextPage && !query.isFetching && !query.isFetchNextPageError) void query.fetchNextPage(); }}
-    ListHeaderComponent={<View style={{ gap: space.lg }}>{header}{query.isError && rows.length > 0 ? <Notice error message={t('refreshFailed')} onRetry={() => { void query.refetch(); }} /> : null}</View>}
+    ListHeaderComponent={<View style={{ gap: space.lg }}>{header}{query.isError && !query.isFetchNextPageError && rows.length > 0 ? <Notice error message={t('refreshFailed')} onRetry={() => { void query.refetch(); }} /> : null}</View>}
     ListEmptyComponent={query.isPending ? <Loading /> : query.isError ? <Notice error message={t('networkError')} onRetry={() => { void query.refetch(); }} /> : <EmptyState title={emptyTitle} body={emptyBody} />}
     ListFooterComponent={query.isFetchingNextPage ? <Loading /> : query.hasNextPage ? <Button variant="secondary" title={t(query.isFetchNextPageError ? 'retry' : 'loadMore')} onPress={() => { void query.fetchNextPage(); }} /> : null}
   />;

@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { SymbolView, type SymbolViewProps } from 'expo-symbols';
 import { colors, radius, space, type } from '@/theme';
 import { useI18n } from '@/store/preferences';
+import { useNetInfo } from '@react-native-community/netinfo';
 
 export function AppText({ variant = 'body', style, ...props }: TextProps & { variant?: keyof typeof type }) {
   return <Text {...props} style={[{ color: colors.text }, type[variant], style]} />;
@@ -37,8 +38,11 @@ export function Field({ label, error, style, ...props }: TextInputProps & { labe
     {error ? <AppText variant="small" accessibilityLiveRegion="polite" style={{ color: colors.danger }}>{error}</AppText> : null}
   </View>;
 }
-export function Screen({ children, scroll = true }: PropsWithChildren<{ scroll?: boolean }>) {
-  return <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.screen}>
+export function Screen({ children, scroll = true, topInset = false }: PropsWithChildren<{ scroll?: boolean; topInset?: boolean }>) {
+  const network = useNetInfo();
+  const { t } = useI18n();
+  return <SafeAreaView edges={topInset ? ['top', 'left', 'right', 'bottom'] : ['left', 'right', 'bottom']} style={styles.screen}>
+    {network.isConnected === false || network.isInternetReachable === false ? <Notice message={t('offline')} /> : null}
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={96} style={{ flex: 1 }}>
       {scroll ? <ScrollView keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" contentContainerStyle={styles.content}>{children}</ScrollView> : children}
     </KeyboardAvoidingView>
@@ -61,9 +65,9 @@ export function EmptyState({ title, body, children }: PropsWithChildren<{ title:
     {body ? <AppText style={{ color: colors.muted, textAlign: 'center' }}>{body}</AppText> : null}{children}
   </View>;
 }
-export function Chips<T extends string>({ options, value, onChange }: { options: readonly { value: T; label: string }[]; value: T; onChange: (value: T) => void }) {
-  return <View style={styles.row}>{options.map((option) => <Pressable key={option.value} onPress={() => onChange(option.value)} accessibilityRole="button"
-    accessibilityState={{ selected: value === option.value }} style={({ pressed }) => [styles.chip, { backgroundColor: value === option.value ? colors.text : colors.surface, opacity: pressed ? 0.6 : 1 }]}>
+export function Chips<T extends string>({ options, value, onChange, disabled = false }: { options: readonly { value: T; label: string }[]; value: T; onChange: (value: T) => void; disabled?: boolean }) {
+  return <View style={styles.row}>{options.map((option) => <Pressable key={option.value} onPress={() => onChange(option.value)} accessibilityRole="button" disabled={disabled}
+    accessibilityState={{ selected: value === option.value, disabled }} style={({ pressed }) => [styles.chip, { backgroundColor: value === option.value ? colors.text : colors.surface, opacity: disabled ? 0.45 : pressed ? 0.6 : 1 }]}>
     <AppText variant="label" style={{ color: value === option.value ? colors.surface : colors.muted }}>{option.label}</AppText>
   </Pressable>)}</View>;
 }

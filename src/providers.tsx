@@ -1,13 +1,12 @@
 import { createContext, useContext, useEffect, useState, type PropsWithChildren } from 'react';
-import { AppState, View } from 'react-native';
-import NetInfo, { useNetInfo } from '@react-native-community/netinfo';
+import { AppState } from 'react-native';
+import NetInfo from '@react-native-community/netinfo';
 import { QueryClient, QueryClientProvider, focusManager, onlineManager, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { switchAccount } from '@/lib/account';
 import { getProfile } from '@/services/profile';
-import { useI18n, usePreferences } from '@/store/preferences';
-import { Notice } from '@/components/ui';
+import { usePreferences } from '@/store/preferences';
 import type { Profile } from '@/lib/models';
 
 type AuthState = {
@@ -68,19 +67,15 @@ function Lifecycle() {
   useEffect(() => {
     const apply = (state: string) => {
       focusManager.setFocused(state === 'active');
-      if (state === 'active') supabase.auth.startAutoRefresh(); else supabase.auth.stopAutoRefresh();
+      const refresh = state === 'active' ? supabase.auth.startAutoRefresh() : supabase.auth.stopAutoRefresh();
+      void refresh.catch(() => console.warn('Session refresh lifecycle update failed.'));
     };
     apply(AppState.currentState);
     const subscription = AppState.addEventListener('change', apply);
     const unsubscribe = NetInfo.addEventListener((state) => onlineManager.setOnline(state.isConnected !== false && state.isInternetReachable !== false));
-    return () => { subscription.remove(); unsubscribe(); supabase.auth.stopAutoRefresh(); };
+    return () => { subscription.remove(); unsubscribe(); void supabase.auth.stopAutoRefresh().catch(() => console.warn('Session refresh cleanup failed.')); };
   }, []);
   return null;
-}
-function OfflineNotice() {
-  const network = useNetInfo();
-  const { t } = useI18n();
-  return network.isConnected === false || network.isInternetReachable === false ? <Notice message={t('offline')} /> : null;
 }
 export function Providers({ children }: PropsWithChildren) {
   const [client] = useState(() => new QueryClient({ defaultOptions: {
@@ -88,5 +83,5 @@ export function Providers({ children }: PropsWithChildren) {
     // No queued writes: a disconnected mutation must fail and preserve input.
     mutations: { retry: false, networkMode: 'always' },
   } }));
-  return <QueryClientProvider client={client}><Lifecycle /><AuthProvider><View style={{ flex: 1 }}><OfflineNotice />{children}</View></AuthProvider></QueryClientProvider>;
+  return <QueryClientProvider client={client}><Lifecycle /><AuthProvider>{children}</AuthProvider></QueryClientProvider>;
 }
