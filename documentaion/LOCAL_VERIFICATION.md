@@ -4,7 +4,7 @@
 
 Source review and `git diff --check` were performed before each pushed increment. **No dependency installation, TypeScript compilation, lint execution, automated tests, SQL execution, app launch, screenshots or builds were performed in the authoring workspace**, as requested. The checks below are runnable instructions, not passing results.
 
-Latest owner-provided Windows output: **TypeScript passes** after explicitly loading Node declarations, and Expo Doctor again passes **21/21** checks. ESLint stops `npm run check` with **5 errors and 2 warnings**; Node tests have not been reached. Source corrections for those hooks diagnostics are authored, with the full rerun pending. Both scoped minimatch paths resolve to **11.0.1**; npm audit is down from 13 findings to **3 high findings**, all along Router's URI-decoder dependency chain.
+Latest owner-provided Windows output after pulling `3f53bb8`: **TypeScript passes** and ESLint is down to **1 error and 0 warnings**. The remaining diagnostic concerns passing the composer's ref-reading callback to `handleSubmit` during render; that call now runs inside the button's press handler. The full rerun is pending, and Node tests have not been reached. The last supplied Expo Doctor result is **21/21**; both scoped minimatch paths resolve to **11.0.1**, and the last audit has **3 high findings**, all along Router's URI-decoder dependency chain.
 
 ## 1. Install and configure
 
@@ -91,6 +91,8 @@ npm run check
 ```
 
 The existing ESLint rules are the direct regression checks for the reported synchronous effect updates, render-time ref reads, and incompatible form subscriptions. No lint suppression was added. TypeScript checks the typed `useWatch` subscriptions, and the existing Node tests check publish reconciliation and account epochs. These do not exercise native screen interactions.
+
+The follow-up composer correction invokes `handleSubmit(submit)()` inside `onPress`, so the ref-reading callback is passed to the library only after a press. The returned handler is invoked, not merely created; React Hook Form still validates the form and tracks `isSubmitting` while the async submission settles. Confirm locally that Publish and Retry both submit and display loading, invalid text is rejected, and an interrupted publish reuses its original UUID/text/photo snapshot.
 
 When running the development build locally, check these affected paths:
 
@@ -205,11 +207,11 @@ On a physical Android device, use the preview/release build and the 360-post see
 
 | Item | Actual result |
 |---|---|
-| Commit tested | Not recorded |
+| Commit tested | Owner pulled `3f53bb8`; tracked local edits were restored by autostash, but their diff was not supplied |
 | Node/npm and lockfile | Owner installation completed; generated lockfile not yet committed |
 | Expo Doctor | Owner again reported 21/21 passing with the scoped minimatch overrides installed |
-| TypeScript | Owner run passed after the Node type configuration correction; rerun after the hooks changes pending |
-| ESLint | Owner run reported 5 errors and 2 warnings; source corrections authored, rerun pending |
+| TypeScript | Owner run passed again after pulling 3f53bb8; rerun after the composer event-handler correction pending |
+| ESLint | Latest owner run: 1 error and 0 warnings in composer; event-handler correction authored, rerun pending |
 | Node tests | Not reached because lint failed, including the new dependency compatibility tests |
 | npm audit | Owner report reduced from 13 findings to 3 high findings in Router's decoder chain; both minimatch overrides resolve to 11.0.1 |
 | Migrations / SQL regression checks | Not run |

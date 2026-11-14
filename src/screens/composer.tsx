@@ -60,7 +60,7 @@ export default function ComposerScreen() {
     catch (error) { if (isCurrentAccount(account)) setMessage(errorKey(error)); }
     finally { if (isCurrentAccount(account)) setPicking(false); }
   }
-  const submit = handleSubmit(async (values) => {
+  async function submit(values: PostInput) {
     if (inFlight.current || !profile) return;
     const parsed = postInput.safeParse(values);
     if (!parsed.success) { setError('description', { message: 'invalidPost' }); return; }
@@ -75,7 +75,7 @@ export default function ComposerScreen() {
       router.push({ pathname: '/posts/[id]', params: { id: result.id } });
     } catch { if (isCurrentAccount(account)) setMessage('publishUncertain'); }
     finally { inFlight.current = false; }
-  });
+  }
   return <Screen><Stack.Screen options={{ title: t('create') }} />
     <AppText variant="title">{t('writePost')}</AppText>
     <Controller control={control} name="description" render={({ field }) => <Field label={t('post')} placeholder={t('postHint')} multiline maxLength={2000} value={field.value} onChangeText={field.onChange} editable={!locked} error={errors.description ? t('invalidPost') : undefined} style={{ minHeight: 180 }} />} />
@@ -94,7 +94,7 @@ export default function ComposerScreen() {
     {photo ? <View style={{ gap: space.sm }}><Image source={photo.uri} style={{ width: '100%', aspectRatio: photo.width / photo.height, maxHeight: 360, borderRadius: radius.md }} contentFit="contain" accessibilityLabel={t('photo')} /><Button title={t('removePhoto')} variant="ghost" disabled={locked} onPress={() => setPhoto(null)} /></View> : null}
     <Button title={t(photo ? 'changePhoto' : 'addPhoto')} variant="secondary" loading={picking} disabled={locked || isSubmitting} onPress={() => { void pick(); }} />
     {locked ? <Notice message={t('draftLocked')} /> : null}{message ? <Notice message={t(message)} error /> : null}
-    <View style={styles.section}><Button title={t(locked ? 'retry' : 'publish')} loading={isSubmitting} disabled={picking} onPress={() => { void submit(); }} />
+    <View style={styles.section}><Button title={t(locked ? 'retry' : 'publish')} loading={isSubmitting} disabled={picking} onPress={() => { void handleSubmit(submit)(); }} />
       {dirty ? <Button title={t('discard')} variant="ghost" disabled={isSubmitting || picking} onPress={() => confirmLeave(() => undefined)} /> : null}</View>
   </Screen>;
 }
