@@ -1,10 +1,11 @@
-import type { PropsWithChildren } from 'react';
+import { useContext, type PropsWithChildren } from 'react';
 import { ActivityIndicator, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View, type TextInputProps, type TextProps, type StyleProp, type ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { SymbolView, type SymbolViewProps } from 'expo-symbols';
 import { colors, radius, space, type } from '@/theme';
 import { useI18n } from '@/store/preferences';
 import { useNetInfo } from '@react-native-community/netinfo';
+import { HeaderHeightContext } from 'expo-router/react-navigation';
 
 export function AppText({ variant = 'body', style, ...props }: TextProps & { variant?: keyof typeof type }) {
   return <Text {...props} style={[{ color: colors.text }, type[variant], style]} />;
@@ -41,9 +42,10 @@ export function Field({ label, error, style, ...props }: TextInputProps & { labe
 export function Screen({ children, scroll = true, topInset = false }: PropsWithChildren<{ scroll?: boolean; topInset?: boolean }>) {
   const network = useNetInfo();
   const { t } = useI18n();
+  const headerHeight = useContext(HeaderHeightContext) ?? 0;
   return <SafeAreaView edges={topInset ? ['top', 'left', 'right', 'bottom'] : ['left', 'right', 'bottom']} style={styles.screen}>
     {network.isConnected === false || network.isInternetReachable === false ? <Notice message={t('offline')} /> : null}
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={96} style={{ flex: 1 }}>
+    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} keyboardVerticalOffset={headerHeight} style={{ flex: 1 }}>
       {scroll ? <ScrollView keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" contentContainerStyle={styles.content}>{children}</ScrollView> : children}
     </KeyboardAvoidingView>
   </SafeAreaView>;

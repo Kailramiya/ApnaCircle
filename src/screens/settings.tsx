@@ -28,8 +28,8 @@ export default function SettingsScreen() {
     finally { if (isCurrentAccount(account)) setBusy(false); }
   }
   return <Screen><Stack.Screen options={{ title: t('settings') }} /><AppText>{t('settingsBody')}</AppText>
-    <AppText variant="heading">{t('language')}</AppText><Chips value={language} onChange={setLanguage} options={[{ value: 'en', label: 'English' }, { value: 'hi', label: 'हिन्दी' }]} />
-    <AppText variant="heading">{t('locality')}</AppText><Chips value={locality} onChange={setLocality} options={localities.map((value) => ({ value, label: t(localityKeys[value]) }))} />
+    <AppText variant="heading">{t('language')}</AppText><Chips disabled={busy} value={language} onChange={setLanguage} options={[{ value: 'en', label: 'English' }, { value: 'hi', label: 'हिन्दी' }]} />
+    <AppText variant="heading">{t('locality')}</AppText><Chips disabled={busy} value={locality} onChange={setLocality} options={localities.map((value) => ({ value, label: t(localityKeys[value]) }))} />
     {status ? <Notice error={status === 'error'} message={t(status === 'error' ? 'networkError' : 'profileSaved')} /> : null}
     <Button title={t('saveChanges')} loading={busy} onPress={() => { void save(); }} /><AppText variant="small">{t('profilePrivacy')}</AppText>
   </Screen>;
