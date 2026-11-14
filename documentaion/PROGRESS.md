@@ -10,7 +10,7 @@ The owner explicitly requested that dependencies, application code and tests not
 
 | Area | Source coverage | Execution status |
 |---|---|---|
-| Foundation | Strict TypeScript, SDK-compatible manifest, native tabs/stacks, theme, reusable controls | Owner install completed; Doctor 21/21; typecheck failed, correction awaiting rerun |
+| Foundation | Strict TypeScript, SDK-compatible manifest, native tabs/stacks, theme, reusable controls | Owner install completed; Doctor 21/21; typecheck passed; lint correction awaiting rerun |
 | Backend | Nine tables, constraints, column grants, RLS, immutable public media, read-model RPCs | Migrations not executed |
 | Authentication | Registration/login, PKCE callback/recovery, SecureStore sessions, lifecycle refresh | Native/email checks pending |
 | Onboarding/profile | Name/username/bio, avatars, Jaipur locality and English/Hindi preferences | Device checks pending |
@@ -40,15 +40,18 @@ These checks are evidence of source delivery, not evidence of a working native b
 - Follow-up manifest correction explicitly declares the SDK 57 renderer, gesture and animation peer versions. A later install attempt hit a local npm cache `ENOENT`; fresh-cache retry instructions were supplied.
 - Initial Expo Doctor result: **19/21 checks passed**, with a missing direct `expo-font` peer and SDK 57/58 font duplicates. The manifest now explicitly declares `expo-font: ~57.0.4`.
 - Latest owner-run compatibility check updated TypeScript to `~6.0.3` and completed installation. Expo Doctor then reported **21/21 checks passed**. The repository now records the same TypeScript range, matching Expo's SDK 57 template.
-- After the composer syntax correction, the owner's next typecheck reported 20 errors in seven test files: Node built-in modules/Buffer were not loaded, and the missing assertion types prevented PKCE narrowing. TypeScript 6 defaults `compilerOptions.types` to `[]`; the shared config now explicitly includes the already-installed `@types/node`. The next typecheck, lint and Node test results remain pending.
-- The owner supplied the full audit behind **13 vulnerabilities (10 moderate, 3 high)**. It identifies `decode-uri-component` through Router's `query-string`, and `minimatch` through fingerprint/ESLint tooling. Scoped `minimatch@11.0.1` overrides and consumer compatibility checks are authored; install/check/audit reruns are pending. The URI decoder remains unresolved: its patched release is ESM-only and is not a callable CommonJS replacement for `query-string@7`. Do not infer security status from the Doctor pass.
+- After the composer syntax correction, the owner's next typecheck reported 20 errors in seven test files: Node built-in modules/Buffer were not loaded, and the missing assertion types prevented PKCE narrowing. TypeScript 6 defaults `compilerOptions.types` to `[]`; the shared config now explicitly includes the already-installed `@types/node`. The latest owner run confirms **TypeScript passes**.
+- That run reached ESLint and stopped with **5 errors and 2 warnings**: synchronous effect state updates in auth, render-time comment ref reads, and React Hook Form `watch()` compiler warnings. Source corrections derive invalid callbacks directly, reset readiness in the retry handler, render comment lock state from React state, and subscribe with `useWatch` in both forms. The full check rerun remains pending; Node tests have not been reached.
+- The latest owner dependency tree confirms `minimatch@11.0.1` under both fingerprint and TypeScript ESLint. The new audit has **3 high findings**, down from 13 (10 moderate, 3 high); no minimatch finding remains. Consumer compatibility tests still await execution. The URI decoder remains unresolved through `expo-router` → `query-string` → `decode-uri-component`: its patched release is ESM-only and is not a callable CommonJS replacement for `query-string@7`. Do not infer security status from the repeated Doctor **21/21** pass.
 
 ## Pending owner-run validation
 
 - [x] Owner installed dependencies and obtained an Expo Doctor 21/21 pass.
 - [ ] Validate and commit the owner's generated `package-lock.json`.
-- [ ] Pass TypeScript, ESLint and Node regression checks after the Node type configuration correction.
-- [ ] Verify scoped minimatch updates and their consumer compatibility checks locally; capture the new audit report.
+- [x] Pass TypeScript after the Node type configuration correction.
+- [ ] Rerun the full TypeScript, ESLint and Node checks after the React hooks corrections.
+- [x] Verify both scoped minimatch updates locally and capture the reduced audit report.
+- [ ] Execute the minimatch consumer compatibility checks included in `npm test`.
 - [ ] Resolve the remaining URI-decoder advisory through a compatible upstream fix or a separately validated Router/SDK migration before release.
 - [ ] Apply migrations and demo seed in a dedicated Supabase development project.
 - [ ] Pass SQL RLS/duplicate-write/equal-timestamp checks and Storage API integration checks.

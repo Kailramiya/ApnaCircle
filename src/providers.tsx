@@ -30,7 +30,6 @@ function AuthProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     let mounted = true;
     let events = 0;
-    setReady(false);
     const apply = (next: Session | null) => {
       if (!mounted) return;
       if (switchAccount(next?.user.id ?? null)) {
@@ -61,7 +60,7 @@ function AuthProvider({ children }: PropsWithChildren) {
   const preferredLanguage = profile.data?.preferred_language;
   useEffect(() => { if (preferredLanguage) usePreferences.getState().setLanguage(preferredLanguage); }, [preferredLanguage]);
   return <AuthContext.Provider value={{ session, ready, error, profile: profile.data, profilePending: Boolean(session) && profile.isPending,
-    profileError: profile.isError, retryProfile: () => { void profile.refetch(); }, retrySession: () => setAttempt((n) => n + 1), recovery, setRecovery }}>{children}</AuthContext.Provider>;
+    profileError: profile.isError, retryProfile: () => { void profile.refetch(); }, retrySession: () => { setReady(false); setAttempt((n) => n + 1); }, recovery, setRecovery }}>{children}</AuthContext.Provider>;
 }
 function Lifecycle() {
   useEffect(() => {

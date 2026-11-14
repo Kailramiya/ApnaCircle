@@ -4,7 +4,7 @@
 
 Source review and `git diff --check` were performed before each pushed increment. **No dependency installation, TypeScript compilation, lint execution, automated tests, SQL execution, app launch, screenshots or builds were performed in the authoring workspace**, as requested. The checks below are runnable instructions, not passing results.
 
-Owner-provided Windows output: installation completed after Expo updated TypeScript to `~6.0.3`; Expo Doctor passed **21/21** checks. After the composer syntax correction, the latest typecheck reported 20 errors across seven test files because Node declarations were not loaded. The shared config now explicitly includes `node`, using the existing `@types/node` dependency. The next typecheck is pending; lint and tests have not been reached. npm also reported 13 vulnerabilities (10 moderate, 3 high).
+Latest owner-provided Windows output: **TypeScript passes** after explicitly loading Node declarations, and Expo Doctor again passes **21/21** checks. ESLint stops `npm run check` with **5 errors and 2 warnings**; Node tests have not been reached. Source corrections for those hooks diagnostics are authored, with the full rerun pending. Both scoped minimatch paths resolve to **11.0.1**; npm audit is down from 13 findings to **3 high findings**, all along Router's URI-decoder dependency chain.
 
 ## 1. Install and configure
 
@@ -81,16 +81,34 @@ TypeScript 6 defaults `compilerOptions.types` to an empty array. The shared conf
 
 Also run `npm audit` and retain the full report to identify affected packages, dependency paths and compatible fixes. Do not run `npm audit fix --force` blindly: it can move dependencies outside their supported ranges, including major-version changes. The 21/21 Doctor result does not resolve these audit findings.
 
+### Pulling the React hooks correction
+
+The latest fixes change source only. Keep the existing installation and lockfile, and run these commands separately in PowerShell. Stop if Git reports a merge or stash-application conflict.
+
+```powershell
+git pull --ff-only --autostash
+npm run check
+```
+
+The existing ESLint rules are the direct regression checks for the reported synchronous effect updates, render-time ref reads, and incompatible form subscriptions. No lint suppression was added. TypeScript checks the typed `useWatch` subscriptions, and the existing Node tests check publish reconciliation and account epochs. These do not exercise native screen interactions.
+
+When running the development build locally, check these affected paths:
+
+- Open a callback without a code: show the invalid-link message immediately. An expired code must also show an error; a valid recovery link must open password reset after exchange.
+- Retry a session-loading error: show loading while the session request is retried, then the appropriate destination or error.
+- Change profile language/locality and composer description/category/locality: selections and character count must update immediately, and clearing the draft must reset subscribed fields.
+- Send a comment with rapid repeated taps and an interrupted response: keep the same text/UUID, disable editing while the outcome is uncertain, show Retry after failure, and create exactly one reply after reconciliation. Successful submission must clear and unlock the editor. Switching accounts must still reject late results.
+
 ### Audit remediation status
 
 The owner's full report identifies these dependency paths:
 
 | Path | Evidence and action | Local validation status |
 |---|---|---|
-| `@expo/fingerprint` / `@typescript-eslint/typescript-estree` → `minimatch` | [GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249) is patched in 11.0.1. Scoped overrides target these two consumers. Their used APIs and the patched Node engine range were reviewed. | Updated installation, consumer compatibility tests and audit rerun pending |
+| `@expo/fingerprint` / `@typescript-eslint/typescript-estree` → `minimatch` | [GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249) is patched in 11.0.1. Scoped overrides target these two consumers. Their used APIs and the patched Node engine range were reviewed. | Owner confirms both paths resolve to 11.0.1 and minimatch findings are absent from the new audit; consumer compatibility tests pending |
 | `expo-router` → `query-string@7` → `decode-uri-component` | [GHSA-vcc3-ghjq-m6fr](https://github.com/advisories/GHSA-vcc3-ghjq-m6fr) and [GHSA-qr28-fpjm-wq7f](https://github.com/advisories/GHSA-qr28-fpjm-wq7f) require 0.5.1, whose ESM default export does not match query-string 7's callable CommonJS dependency. A modern query-string override also changes the namespace API used by SDK 57 Router. | Unresolved; requires a compatible upstream fix or a separately validated Router/SDK migration before release |
 
-These findings concern denial of service. The reported 13 vulnerabilities include affected parent packages; they are not 13 independently identified root causes. The root application does not directly import either package, but that does not prove the transitive runtime/tooling paths are unreachable. Keep the high-severity decoder finding open.
+These findings concern denial of service. The original report counted 13 affected packages; the latest report counts 3 high findings along the same decoder chain, including its parent packages. The root application does not directly import either package, but that does not prove the transitive runtime/tooling paths are unreachable. Keep the high-severity decoder finding open.
 
 After pulling the fixes, run each command separately and retain failures:
 
@@ -189,9 +207,11 @@ On a physical Android device, use the preview/release build and the 360-post see
 |---|---|
 | Commit tested | Not recorded |
 | Node/npm and lockfile | Owner installation completed; generated lockfile not yet committed |
-| Expo Doctor | Owner reported 21/21 passing after the font and TypeScript corrections |
-| TypeScript / ESLint / Node tests | Latest typecheck: 20 Node-declaration/narrowing errors in tests; config corrected, rerun pending; lint/tests not reached |
-| npm audit | Full report reviewed; scoped minimatch correction awaiting validation; decoder path remains unresolved |
+| Expo Doctor | Owner again reported 21/21 passing with the scoped minimatch overrides installed |
+| TypeScript | Owner run passed after the Node type configuration correction; rerun after the hooks changes pending |
+| ESLint | Owner run reported 5 errors and 2 warnings; source corrections authored, rerun pending |
+| Node tests | Not reached because lint failed, including the new dependency compatibility tests |
+| npm audit | Owner report reduced from 13 findings to 3 high findings in Router's decoder chain; both minimatch overrides resolve to 11.0.1 |
 | Migrations / SQL regression checks | Not run |
 | Android model / OS / build | Not tested |
 | iOS model / OS / build | Not tested |

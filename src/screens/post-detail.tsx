@@ -24,28 +24,31 @@ export default function PostDetailScreen() {
   const account = captureAccount();
   const [content, setContent] = useState('');
   const [busy, setBusy] = useState(false);
+  const [locked, setLocked] = useState(false);
   const [error, setError] = useState<MessageKey>();
   const pending = useRef<{ id: string; content: string } | null>(null);
+  const inFlight = useRef(false);
   const comments = useInfiniteQuery({ queryKey: [account.id, 'comments', id], queryFn: ({ pageParam, signal }) => getComments(id, pageParam, signal), initialPageParam: null as Cursor | null, getNextPageParam: nextCursor, enabled: Boolean(query.data) });
   async function send() {
-    if (busy) return;
+    if (inFlight.current) return;
     const parsed = commentInput.safeParse(content);
     if (!parsed.success) { setError('invalidComment'); return; }
     pending.current ??= { id: randomUUID(), content: parsed.data };
-    setBusy(true); setError(undefined);
+    inFlight.current = true;
+    setLocked(true); setBusy(true); setError(undefined);
     try {
       await addComment(pending.current.id, id, pending.current.content);
       if (!isCurrentAccount(account)) return;
-      pending.current = null; setContent('');
+      pending.current = null; setLocked(false); setContent('');
       void client.invalidateQueries({ queryKey: [account.id, 'comments', id] });
       void client.invalidateQueries({ queryKey: [account.id, 'post', id] });
       void client.invalidateQueries({ queryKey: [account.id, 'posts'] });
     } catch { if (isCurrentAccount(account)) setError('commentUncertain'); }
-    finally { if (isCurrentAccount(account)) setBusy(false); }
+    finally { inFlight.current = false; if (isCurrentAccount(account)) setBusy(false); }
   }
   const header = query.data ? <View style={styles.section}><PostCard post={query.data} detail />
-    <AppText variant="heading">{t('comments')}</AppText><Field label={t('comment')} placeholder={t('commentHint')} value={content} onChangeText={setContent} multiline maxLength={500} editable={!pending.current} />
-    {error ? <Notice error message={t(error)} /> : null}<Button title={t(pending.current ? 'retry' : 'send')} loading={busy} onPress={() => { void send(); }} />
+    <AppText variant="heading">{t('comments')}</AppText><Field label={t('comment')} placeholder={t('commentHint')} value={content} onChangeText={setContent} multiline maxLength={500} editable={!locked} />
+    {error ? <Notice error message={t(error)} /> : null}<Button title={t(locked ? 'retry' : 'send')} loading={busy} onPress={() => { void send(); }} />
   </View> : undefined;
   return <Screen scroll={false}><Stack.Screen options={{ title: t('postDetail') }} />{query.isPending ? <Loading /> : query.data ? <PagedList query={comments} renderItem={(comment) => <CommentRow comment={comment} />} header={header} emptyTitle={t('noComments')} /> : query.isError ? <Notice error message={t('networkError')} onRetry={() => { void query.refetch(); }} /> : <EmptyState title={t('unavailable')} />}</Screen>;
 }

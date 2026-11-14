@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { Stack } from 'expo-router/stack';
 import { useRouter } from 'expo-router';
 import { randomUUID } from 'expo-crypto';
@@ -24,9 +24,10 @@ export function ProfileForm({ profile }: { profile?: Profile }) {
   const [error, setErrorMessage] = useState<MessageKey>();
   const [photo, setPhoto] = useState<{ image: PreparedPhoto; path: string } | null>(null);
   const [picking, setPicking] = useState(false);
-  const { control, handleSubmit, setError, watch, setValue, formState: { errors, isSubmitting } } = useForm<ProfileInput>({
+  const { control, handleSubmit, setError, setValue, formState: { errors, isSubmitting } } = useForm<ProfileInput>({
     defaultValues: profile ?? { full_name: '', username: '', bio: '', locality: 'Mansarovar', preferred_language: language },
   });
+  const [preferredLanguage, locality] = useWatch({ control, name: ['preferred_language', 'locality'] as const });
   async function pick() {
     const account = captureAccount();
     setPicking(true);
@@ -58,8 +59,8 @@ export function ProfileForm({ profile }: { profile?: Profile }) {
     <AppText>{t(profile ? 'profilePrivacy' : 'onboardingBody')}</AppText>
     {profile ? <>{photo ? <Image source={photo.image.uri} style={{ width: 88, height: 88, borderRadius: radius.pill }} accessibilityLabel={t('avatar')} /> : <Avatar name={profile.full_name} path={profile.avatar_path} size={88} />}<Button title={t('changeAvatar')} variant="secondary" loading={picking} disabled={isSubmitting} onPress={() => { void pick(); }} /></> : null}
     {(['full_name', 'username', 'bio'] as const).map((name) => <Controller key={name} name={name} control={control} render={({ field }) => <Field label={t(name === 'full_name' ? 'fullName' : name)} value={field.value} onChangeText={field.onChange} onBlur={field.onBlur} autoCapitalize={name === 'username' ? 'none' : 'sentences'} multiline={name === 'bio'} maxLength={name === 'username' ? 24 : name === 'bio' ? 180 : 60} editable={!isSubmitting} error={errors[name] ? t(validationKey(errors[name]?.message) ?? 'required') : undefined} />} />)}
-    <AppText variant="heading">{t('language')}</AppText><Chips disabled={isSubmitting} value={watch('preferred_language')} onChange={(value) => { setValue('preferred_language', value); if (!profile) usePreferences.getState().setLanguage(value); }} options={[{ value: 'en', label: 'English' }, { value: 'hi', label: 'हिन्दी' }]} />
-    <AppText variant="heading">{t('jaipur')} · {t('locality')}</AppText><Chips disabled={isSubmitting} value={watch('locality')} onChange={(value) => setValue('locality', value)} options={localities.map((value) => ({ value, label: t(localityKeys[value]) }))} />
+    <AppText variant="heading">{t('language')}</AppText><Chips disabled={isSubmitting} value={preferredLanguage} onChange={(value) => { setValue('preferred_language', value); if (!profile) usePreferences.getState().setLanguage(value); }} options={[{ value: 'en', label: 'English' }, { value: 'hi', label: 'हिन्दी' }]} />
+    <AppText variant="heading">{t('jaipur')} · {t('locality')}</AppText><Chips disabled={isSubmitting} value={locality} onChange={(value) => setValue('locality', value)} options={localities.map((value) => ({ value, label: t(localityKeys[value]) }))} />
     {error ? <Notice message={t(error)} error /> : null}<Button title={t(profile ? 'saveChanges' : 'continue')} loading={isSubmitting} disabled={picking} onPress={() => { void submit(); }} />
     {!profile ? <Button title={t('signOut')} variant="ghost" disabled={isSubmitting} onPress={() => { void signOut().catch(() => setErrorMessage('networkError')); }} /> : null}
   </Screen>;

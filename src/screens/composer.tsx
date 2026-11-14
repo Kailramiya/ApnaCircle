@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, BackHandler, View } from 'react-native';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { usePreventRemove, useNavigation } from 'expo-router/react-navigation';
 import { Stack } from 'expo-router/stack';
@@ -30,10 +30,10 @@ export default function ComposerScreen() {
   const [message, setMessage] = useState<MessageKey>();
   const submission = useRef<PostSubmission | null>(null);
   const inFlight = useRef(false);
-  const { control, handleSubmit, watch, setValue, reset, setError, formState: { isSubmitting, errors } } = useForm<PostInput>({
+  const { control, handleSubmit, setValue, reset, setError, formState: { isSubmitting, errors } } = useForm<PostInput>({
     defaultValues: { description: '', category: 'general', locality: profile?.locality ?? 'Mansarovar' },
   });
-  const description = watch('description');
+  const [description, category, locality] = useWatch({ control, name: ['description', 'category', 'locality'] as const });
   const dirty = Boolean(description.trim() || photo || locked);
   useEffect(() => { if (!dirty && profile) setValue('locality', profile.locality); }, [dirty, profile, setValue]);
   function clearDraft() { submission.current = null; setPhoto(null); setLocked(false); reset(); setMessage(undefined); }
@@ -82,15 +82,15 @@ export default function ComposerScreen() {
     <AppText variant="small">{t('characterCount', { count: number(description.length), max: number(2000) })}</AppText>
     <AppText variant="heading">{t('category')}</AppText>
     {locked ? (
-      <AppText>{t(watch('category'))}</AppText>
+      <AppText>{t(category)}</AppText>
     ) : (
       <Chips
-        value={watch('category')}
+        value={category}
         onChange={(value) => setValue('category', value)}
         options={categories.map((value) => ({ value, label: t(value) }))}
       />
     )}
-    <AppText variant="heading">{t('locality')}</AppText><Chips value={watch('locality')} disabled={locked} onChange={(value) => setValue('locality', value)} options={localities.map((value) => ({ value, label: t(localityKeys[value]) }))} />
+    <AppText variant="heading">{t('locality')}</AppText><Chips value={locality} disabled={locked} onChange={(value) => setValue('locality', value)} options={localities.map((value) => ({ value, label: t(localityKeys[value]) }))} />
     {photo ? <View style={{ gap: space.sm }}><Image source={photo.uri} style={{ width: '100%', aspectRatio: photo.width / photo.height, maxHeight: 360, borderRadius: radius.md }} contentFit="contain" accessibilityLabel={t('photo')} /><Button title={t('removePhoto')} variant="ghost" disabled={locked} onPress={() => setPhoto(null)} /></View> : null}
     <Button title={t(photo ? 'changePhoto' : 'addPhoto')} variant="secondary" loading={picking} disabled={locked || isSubmitting} onPress={() => { void pick(); }} />
     {locked ? <Notice message={t('draftLocked')} /> : null}{message ? <Notice message={t(message)} error /> : null}
