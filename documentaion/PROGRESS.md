@@ -10,7 +10,7 @@ The owner explicitly requested that dependencies, application code and tests not
 
 | Area | Source coverage | Execution status |
 |---|---|---|
-| Foundation | Strict TypeScript, SDK-compatible manifest, native tabs/stacks, theme, reusable controls | Pending local install/typecheck/lint |
+| Foundation | Strict TypeScript, SDK-compatible manifest, native tabs/stacks, theme, reusable controls | Owner install completed; Doctor 21/21; typecheck failed, correction awaiting rerun |
 | Backend | Nine tables, constraints, column grants, RLS, immutable public media, read-model RPCs | Migrations not executed |
 | Authentication | Registration/login, PKCE callback/recovery, SecureStore sessions, lifecycle refresh | Native/email checks pending |
 | Onboarding/profile | Name/username/bio, avatars, Jaipur locality and English/Hindi preferences | Device checks pending |
@@ -38,12 +38,17 @@ These checks are evidence of source delivery, not evidence of a working native b
 - Windows: Java/Javac versions verified by the owner; ADB `37.0.0` reports the connected Android phone as `device` (authorized).
 - First `npm install`: **failed** with React DOM/React `ERESOLVE` and an incompatible Worklets peer warning.
 - Follow-up manifest correction explicitly declares the SDK 57 renderer, gesture and animation peer versions. A later install attempt hit a local npm cache `ENOENT`; fresh-cache retry instructions were supplied.
-- Latest owner-reported Expo Doctor result: **19/21 checks passed**. The two failures were a missing direct `expo-font` peer for `expo-symbols` and SDK 57/58 font duplicates. The manifest now explicitly declares `expo-font: ~57.0.4`; updated install/lockfile, Doctor and source checks remain pending. See `LOCAL_VERIFICATION.md` for commands.
+- Initial Expo Doctor result: **19/21 checks passed**, with a missing direct `expo-font` peer and SDK 57/58 font duplicates. The manifest now explicitly declares `expo-font: ~57.0.4`.
+- Latest owner-run compatibility check updated TypeScript to `~6.0.3` and completed installation. Expo Doctor then reported **21/21 checks passed**. The repository now records the same TypeScript range, matching Expo's SDK 57 template.
+- `npm run check` stopped at TypeScript with TS2657/TS1005 in `src/screens/composer.tsx`: the category conditional lacked its closing `}`. The source is corrected; typecheck rerun, lint and Node tests remain pending.
+- npm reported **13 vulnerabilities (10 moderate, 3 high)**. Advisory/package details have not been supplied; audit triage and any necessary compatible fixes are pending. Do not infer security status from the Doctor pass.
 
 ## Pending owner-run validation
 
-- [ ] Install dependencies, resolve compatibility, generate and commit `package-lock.json`.
-- [ ] Pass TypeScript, ESLint, Node regression checks and Expo Doctor.
+- [x] Owner installed dependencies and obtained an Expo Doctor 21/21 pass.
+- [ ] Validate and commit the owner's generated `package-lock.json`.
+- [ ] Pass TypeScript, ESLint and Node regression checks after the composer correction.
+- [ ] Review the owner's full `npm audit` report and resolve or document affected dependency paths before release.
 - [ ] Apply migrations and demo seed in a dedicated Supabase development project.
 - [ ] Pass SQL RLS/duplicate-write/equal-timestamp checks and Storage API integration checks.
 - [ ] Test confirmation/reset links on the requesting app installation.

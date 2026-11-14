@@ -4,6 +4,8 @@
 
 Source review and `git diff --check` were performed before each pushed increment. **No dependency installation, TypeScript compilation, lint execution, automated tests, SQL execution, app launch, screenshots or builds were performed in the authoring workspace**, as requested. The checks below are runnable instructions, not passing results.
 
+Latest owner-provided Windows output: installation completed after Expo updated TypeScript to `~6.0.3`; Expo Doctor passed **21/21** checks. `npm run check` then stopped at a composer JSX parser error (TS2657/TS1005), now corrected in source. Lint and tests were not reached. npm also reported 13 vulnerabilities (10 moderate, 3 high); the advisory details remain unreviewed.
+
 ## 1. Install and configure
 
 Use Node.js **22.18 or newer**. From the repository root:
@@ -20,7 +22,7 @@ The first successful install creates `package-lock.json`. After resolving any co
 
 ### Recovering from the first Windows install failure
 
-The owner's first `npm install` failed with `ERESOLVE`: npm selected `react-dom@19.3.1` against the app's `react@19.2.3`, and warned about `react-native-worklets@0.13.1` outside Expo Modules Core's supported range. The manifest now explicitly declares Router's renderer and animation/gesture peers using the [SDK 57 version map](https://github.com/expo/expo/blob/sdk-57/packages/expo/bundledNativeModules.json): React DOM `19.2.3`, Reanimated `4.5.1`, Worklets `0.10.1`, Gesture Handler `~2.32.0`, and React Native Web `~0.21.0`. This is a source correction; a successful installation has not yet been reported.
+The owner's first `npm install` failed with `ERESOLVE`: npm selected `react-dom@19.3.1` against the app's `react@19.2.3`, and warned about `react-native-worklets@0.13.1` outside Expo Modules Core's supported range. The manifest now explicitly declares Router's renderer and animation/gesture peers using the [SDK 57 version map](https://github.com/expo/expo/blob/sdk-57/packages/expo/bundledNativeModules.json): React DOM `19.2.3`, Reanimated `4.5.1`, Worklets `0.10.1`, Gesture Handler `~2.32.0`, and React Native Web `~0.21.0`. These pins address that reported conflict; the latest owner results are recorded above.
 
 For this failed first installation, pull the fix and remove only the generated install artifacts before retrying. Run each command separately in **PowerShell** from the repository root; stop if a command fails. If pulling reports local source changes, preserve them and resolve that conflict before proceeding.
 
@@ -48,7 +50,7 @@ npx expo-doctor
 npm run check
 ```
 
-Expect an SDK 57 font version with other references deduped to it, and no missing peer or duplicate native module checks failing. If either check still fails, preserve the `npm ls expo-font --all` and Doctor output for diagnosis. These are expected results, not recorded passes. If the previous npm cache `ENOENT` recurs, use the fresh cache configured for the current PowerShell session rather than bypassing peer dependency checks.
+Expect an SDK 57 font version with other references deduped to it, and no missing peer or duplicate native module checks failing. If either check still fails, preserve the `npm ls expo-font --all` and Doctor output for diagnosis. The owner subsequently reported a 21/21 Doctor pass; see the current evidence above for remaining checks. If the previous npm cache `ENOENT` recurs, use the fresh cache configured for the current PowerShell session rather than bypassing peer dependency checks.
 
 Follow [`supabase/README.md`](../supabase/README.md) to create a dedicated development backend, apply both migrations in order and optionally load the demo seed. Set Auth's minimum password length to 8. Add `apnacircle://auth/callback` and `apnacircle://auth/callback?mode=recovery` to the redirect allowlist. Use your project's standard Supabase confirmation/recovery link templates. PKCE confirmation/recovery links must return to the device/app installation that requested them, where the verifier is stored.
 
@@ -61,7 +63,21 @@ npx expo-doctor
 
 `npm run check` runs TypeScript, Expo ESLint, then Node's built-in test runner. The tests cover session chunking/failed storage, account epochs, native-crypto bridging, timestamp precision, row deduplication, publish retries, lost responses, desired-state likes, bilingual key/interpolation parity and validation boundaries. They do not render React Native components, simulate a device or establish backend permissions.
 
-Type-generated routes may require an initial `npm start` so Expo can create `.expo/types`. If a check fails, fix the cause and record the failure and fix before continuing. No passing output is prefilled in this repository.
+Type-generated routes may require an initial `npm start` so Expo can create `.expo/types`. If a check fails, fix the cause and record the failure and fix before continuing. Only owner-provided results are recorded as passes.
+
+### Pulling the composer and TypeScript correction
+
+Expo's compatibility repair changed the owner's local `package.json`. Use Git's autostash option to preserve tracked local edits while pulling the matching repository change. Run each command separately; if Git reports a merge or stash-application conflict, resolve it before continuing. Keep the generated lockfile.
+
+```powershell
+git pull --ff-only --autostash
+npm install
+npm run check
+```
+
+The corrected category ternary must parse in both locked and editable states. A source fix is not evidence of a passing typecheck; retain the new output. On-device category/locality selection, locked retry state, keyboard layout and accessibility remain part of the device checklist.
+
+Also run `npm audit` and retain the full report to identify affected packages, dependency paths and compatible fixes. Do not run `npm audit fix --force` blindly: it can move dependencies outside their supported ranges, including major-version changes. The 21/21 Doctor result does not resolve these audit findings.
 
 ## 3. Database checks
 
@@ -146,8 +162,10 @@ On a physical Android device, use the preview/release build and the 360-post see
 | Item | Actual result |
 |---|---|
 | Commit tested | Not recorded |
-| Node/npm and lockfile | Not recorded |
-| TypeScript / ESLint / Node tests | Not run |
+| Node/npm and lockfile | Owner installation completed; generated lockfile not yet committed |
+| Expo Doctor | Owner reported 21/21 passing after the font and TypeScript corrections |
+| TypeScript / ESLint / Node tests | TypeScript failed with composer TS2657/TS1005; source corrected, rerun pending; lint/tests not reached |
+| npm audit | Owner reported 13 vulnerabilities (10 moderate, 3 high); full report/triage pending |
 | Migrations / SQL regression checks | Not run |
 | Android model / OS / build | Not tested |
 | iOS model / OS / build | Not tested |

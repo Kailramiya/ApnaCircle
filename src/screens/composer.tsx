@@ -81,7 +81,15 @@ export default function ComposerScreen() {
     <Controller control={control} name="description" render={({ field }) => <Field label={t('post')} placeholder={t('postHint')} multiline maxLength={2000} value={field.value} onChangeText={field.onChange} editable={!locked} error={errors.description ? t('invalidPost') : undefined} style={{ minHeight: 180 }} />} />
     <AppText variant="small">{t('characterCount', { count: number(description.length), max: number(2000) })}</AppText>
     <AppText variant="heading">{t('category')}</AppText>
-    {locked ? <AppText>{t(watch('category'))}</AppText> : <Chips value={watch('category')} onChange={(value) => setValue('category', value)} options={categories.map((value) => ({ value, label: t(value) }))} />
+    {locked ? (
+      <AppText>{t(watch('category'))}</AppText>
+    ) : (
+      <Chips
+        value={watch('category')}
+        onChange={(value) => setValue('category', value)}
+        options={categories.map((value) => ({ value, label: t(value) }))}
+      />
+    )}
     <AppText variant="heading">{t('locality')}</AppText><Chips value={watch('locality')} disabled={locked} onChange={(value) => setValue('locality', value)} options={localities.map((value) => ({ value, label: t(localityKeys[value]) }))} />
     {photo ? <View style={{ gap: space.sm }}><Image source={photo.uri} style={{ width: '100%', aspectRatio: photo.width / photo.height, maxHeight: 360, borderRadius: radius.md }} contentFit="contain" accessibilityLabel={t('photo')} /><Button title={t('removePhoto')} variant="ghost" disabled={locked} onPress={() => setPhoto(null)} /></View> : null}
     <Button title={t(photo ? 'changePhoto' : 'addPhoto')} variant="secondary" loading={picking} disabled={locked || isSubmitting} onPress={() => { void pick(); }} />

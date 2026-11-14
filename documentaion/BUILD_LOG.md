@@ -94,3 +94,11 @@ Validation: reviewed the upstream version map, template, Router/UI peer metadata
 After a local npm cache `ENOENT` and fresh-cache retry instructions, the owner supplied Expo Doctor output: **19/21 checks passed**. Both failures concern Expo Font: the manifest omitted the required native peer of `expo-symbols`, while the installed tree contained SDK 58 (`58.0.12`) and SDK 57 (`57.0.4`) font copies.
 
 Added `expo-font: ~57.0.4` as a direct dependency. Confirmed the requirement against `expo-symbols@57.0.3` peer metadata and the version against Expo's SDK 57 bundled module map. Added an owner-run `npm ls expo-font --all` check and instructions to update the existing install/lockfile and rerun Doctor and source checks. Source review and Git whitespace checks are the authoring-workspace validation; the corrected dependency tree, Doctor result and native build remain pending local execution.
+
+## Owner Doctor pass and first typecheck — composer syntax correction
+
+The owner accepted Expo's TypeScript compatibility update to `~6.0.3`; npm completed installation, and Expo Doctor reported **21/21 checks passed**. Updated the repository's TypeScript range to match that result and the SDK 57 template. The same install reported 13 audit vulnerabilities (10 moderate, 3 high); the full advisory report is needed before choosing compatible fixes.
+
+The owner's `npm run check` then stopped with TS2657/TS1005 in the composer. Its category ternary was missing a closing `}`. Closed the expression and formatted both branches so the locality and photo controls are visibly separate siblings. Reviewed the create-route caller, shared Chips component and nearby conditional JSX; this change does not introduce new logic. The existing `npm run typecheck` is the regression check for this parser failure, followed by the full check script.
+
+Authoring validation remains source review and Git whitespace inspection only. TypeScript, lint, tests and the app were not executed here. A new successful typecheck, lint/test output, audit triage and native rendering are still pending from the owner.
